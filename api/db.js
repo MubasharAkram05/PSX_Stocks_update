@@ -49,6 +49,19 @@ async function ensureSchema() {
   } catch (err) {
     // Already exists — fine, ignore.
   }
+
+  // Admin-managed stock list: which symbols show up on the Top Stocks
+  // page and in what order. Position is a plain integer; smaller shows
+  // first. Only admins can insert/delete/reorder rows here (see
+  // api/admin-stocks.js).
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS admin_stocks (
+      id SERIAL PRIMARY KEY,
+      symbol TEXT UNIQUE NOT NULL,
+      position INT NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
 }
 
 module.exports = { pool, ensureSchema };

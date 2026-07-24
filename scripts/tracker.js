@@ -17,9 +17,10 @@ async function savePrice() {
   status.className = '';
 
   try {
+    const adminToken = localStorage.getItem('psxAdminToken') || '';
     const res = await fetch('/api/save-price', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
       body: JSON.stringify({ symbol }),
     });
     const data = await res.json();
@@ -33,6 +34,7 @@ async function savePrice() {
   } catch (err) {
     status.textContent = err.message;
     status.className = 'err';
+    alert(err.message);
   } finally {
     btn.disabled = false;
   }

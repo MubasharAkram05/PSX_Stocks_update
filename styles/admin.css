@@ -1,0 +1,108 @@
+/* styles/admin.css
+   Styles for admin.html: login form and the stock management panel. */
+
+:root { color-scheme: light; }
+
+body {
+  font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px 40px;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.topnav { margin: 0 -20px 40px; }
+
+.admin-wrap {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.manage-header { display: flex; align-items: center; justify-content: space-between; }
+.link-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  width: auto;
+}
+.link-btn:hover { color: #e2e8f0; }
+
+h1 { font-size: 20px; margin-bottom: 4px; }
+p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+#newSymbol, #password { text-transform: uppercase; }
+#password { text-transform: none; }
+
+button {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  text-align: center;
+  background: #22c55e;
+  color: #052e16;
+}
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+#loginStatus, #addStatus { margin-top: 14px; font-size: 14px; line-height: 1.5; min-height: 18px; }
+.ok { color: #4ade80; }
+.err { color: #f87171; }
+hr { border: none; border-top: 1px solid #334155; margin: 24px 0; }
+
+.admin-stock-list { list-style: none; margin: 0; padding: 0; max-height: 420px; overflow-y: auto; }
+.admin-stock-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.admin-stock-list li:hover { background: #334155; }
+.admin-stock-list .sym { font-weight: 600; flex: 1; }
+.admin-stock-list .placeholder { color: #64748b; }
+.admin-stock-list button {
+  width: auto;
+  padding: 4px 9px;
+  font-size: 13px;
+  background: #334155;
+  color: #e2e8f0;
+}
+.admin-stock-list button:hover { background: #475569; }
+.admin-stock-list .remove-btn { background: #7f1d1d; color: #fecaca; }
+.admin-stock-list .remove-btn:hover { background: #991b1b; }

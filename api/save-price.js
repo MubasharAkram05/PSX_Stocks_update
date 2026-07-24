@@ -7,10 +7,15 @@
 
 const { pool, ensureSchema } = require('./db');
 const { getDailyLowPrice } = require('./psx');
+const { isAdminRequest } = require('./admin-auth');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (!isAdminRequest(req)) {
+    return res.status(403).json({ error: 'Only admin can add stocks.' });
   }
 
   const { symbol } = req.body || {};
@@ -28,6 +33,14 @@ module.exports = async (req, res) => {
        ON CONFLICT (symbol, date)
        DO UPDATE SET price = LEAST(psx_prices.price, EXCLUDED.price)`,
       [result.date, result.symbol, result.price]
+    );
+
+    const maxPos = await pool.query(`SELECT COALESCE(MAX(position), 0) AS max FROM admin_stocks`);
+    await pool.query(
+      `INSERT INTO admin_stocks (symbol, position)
+       VALUES ($1, $2)
+       ON CONFLICT (symbol) DO NOTHING`,
+      [result.symbol, Number(maxPos.rows[0].max) + 1]
     );
 
     // Report back whatever ended up stored (could be an earlier,

@@ -72,6 +72,9 @@ in their docs if it doesn't appear to fire.
 - `api/news.js` — PSX-related news (Google News RSS); supports `?q=` search and `&dividend=true`
 - `api/download.js` — Excel/PDF export of everything saved
 - `api/db.js` — shared database connection + schema/migration logic
+- `api/admin-auth.js` — shared admin check (password-derived token)
+- `api/admin-login.js` — exchanges `ADMIN_PASSWORD` for a token
+- `api/admin-stocks.js` — admin-only add/remove/reorder of the stock list
 
 ## Honesty notes
 
@@ -84,6 +87,23 @@ in their docs if it doesn't appear to fire.
 - **News** comes from Google News' public feed, not PSX's own
   (rights-restricted) announcements feed.
 
+## Admin-only stock management
+
+Saving a price (and adding/removing/reordering stocks) requires admin
+login — anyone else gets a popup: "Only admin can add stocks."
+
+- Set an `ADMIN_PASSWORD` env var in Vercel (Project → Settings →
+  Environment Variables).
+- Go to `/admin.html`, log in with that password. The page lets you:
+  - **Add** a stock (fetches + saves today's price, same as the old
+    home page Save Price flow).
+  - **Remove** a stock from the Top Stocks list.
+  - **Reorder** stocks (▲/▼) — this order is what the Top Stocks page
+    displays.
+- The Save Price button on the home page still works for anyone
+  already logged in as admin (the token is kept in `localStorage`);
+  everyone else gets the "Only admin can add stocks" error.
+
 ## Setup
 
 ### 1. Add a Postgres database in Vercel
@@ -91,8 +111,10 @@ Storage tab → Create Database → Postgres (may show as "Neon") →
 connect it to your project.
 
 ### 2. Deploy
-Push to GitHub, import into Vercel. First save (manual or cron)
-auto-creates/migrates the `psx_prices` table.
+Push to GitHub, import into Vercel. Also set `ADMIN_PASSWORD` under
+Environment Variables (see "Admin-only stock management" above).
+First save (manual or cron) auto-creates/migrates the `psx_prices`
+table.
 
 ### 3. Testing locally (optional)
 ```bash

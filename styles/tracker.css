@@ -37,12 +37,12 @@ body {
   .layout {
     flex-direction: row;
     align-items: flex-start;
-    max-width: 780px;
+    max-width: 900px;
     justify-content: center;
   }
   .layout .card { order: 2; }
   .layout #recentPanel { order: 1; }
-  .side-panel { width: 280px; flex-shrink: 0; }
+  .side-panel { width: 220px; flex-shrink: 0; }
 }
 
 .card {
@@ -50,7 +50,7 @@ body {
   border-radius: 16px;
   padding: 32px;
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 .panel {

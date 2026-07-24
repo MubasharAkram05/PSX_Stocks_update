@@ -11,7 +11,7 @@
 // this table just get sector: 'other' and no dividend/growth tag, so
 // they still show up (with fewer filter matches).
 
-const { pool } = require('./db');
+const { pool, ensureSchema } = require('./db');
 const { getStockPriceWithTrend } = require('./psx');
 
 const SECTOR_META = {
@@ -58,7 +58,19 @@ const SECTOR_META = {
 
 module.exports = async (req, res) => {
   try {
-    const dbRes = await pool.query(`SELECT DISTINCT symbol FROM psx_prices ORDER BY symbol`);
+    await ensureSchema();
+
+    // Backward compat: symbols saved before admin_stocks existed
+    // won't be in it yet — seed them in alphabetically, once, so
+    // they don't disappear from the page.
+    await pool.query(`
+      INSERT INTO admin_stocks (symbol, position)
+      SELECT p.symbol, (SELECT COALESCE(MAX(position), 0) FROM admin_stocks) + ROW_NUMBER() OVER (ORDER BY p.symbol)
+      FROM (SELECT DISTINCT symbol FROM psx_prices) p
+      WHERE p.symbol NOT IN (SELECT symbol FROM admin_stocks)
+    `);
+
+    const dbRes = await pool.query(`SELECT symbol FROM admin_stocks ORDER BY position ASC`);
     const symbols = dbRes.rows.map((r) => r.symbol);
 
     if (symbols.length === 0) {

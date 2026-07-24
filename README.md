@@ -36,10 +36,15 @@ Monday–Friday.
 
 **Pages:**
 - `index.html` / `styles/tracker.css` / `scripts/tracker.js` — Save
-  Price card (with editable confirmation popup), Recently Added on
-  the left on wider screens, download buttons with an optional
-  date-range filter, and a Remove Saved Data tool (same date-range
-  filter, permanent — open to anyone, no login required).
+  Price card (with editable confirmation popup), Recently Added
+  (narrow) on the left on wider screens, download buttons with an
+  optional date-range filter, and a Remove Saved Data tool (same
+  date-range filter, permanent — open to anyone, no login required).
+- `stocks.html` / `styles/stocks.css` / `scripts/stocks.js` — every
+  stock you've saved, grouped into labeled sector rows (Petroleum,
+  Fertilizer, Medicine, Bank, Cement, Tech, Power, Chemical,
+  Automobile, Engineering, Steel, Other). Click a stock to jump to
+  the home page with it pre-filled.
 - `stock-profit-calculator.html` / `styles/stock-profit-calculator.css`
   / `scripts/stock-profit-calculator.js`
 - `mutual-fund-calculator.html` / `styles/mutual-fund-calculator.css`
@@ -66,6 +71,7 @@ as one, even plain helpers with no route of their own.
 - `api/delete-data.js` — deletes saved rows within a date range (open to anyone)
 - `api/cron-daily-save.js` — same upsert, run automatically for every saved symbol
 - `api/recent.js` — the last 15 distinct symbols saved, with live trend
+- `api/stocks.js` — every saved symbol, tagged by sector for the Stocks page
 - `api/psx-index.js` — best-effort KSE-100 index level for the header
 - `api/download.js` — Excel/PDF export, optional `?from=&to=` date filter
 

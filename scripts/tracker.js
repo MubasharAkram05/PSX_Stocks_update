@@ -108,7 +108,7 @@ function renderList(el, items, emptyText) {
     li.innerHTML = `
       <span class="sym">${item.symbol}</span>
       <span class="${priceClass}">Rs. ${item.price}</span>
-      ${sparklineSvg(item.trend, item.direction, { w: 44, h: 20 })}
+      ${sparklineSvg(item.trend, item.direction, { w: 30, h: 16 })}
     `;
     li.addEventListener('click', () => {
       input.value = item.symbol;
@@ -179,5 +179,12 @@ async function removeData() {
   }
 }
 removeBtn.addEventListener('click', removeData);
+
+// If arriving from the Stocks page (e.g. /?symbol=ENGRO), prefill the input
+const urlParams = new URLSearchParams(window.location.search);
+const prefill = urlParams.get('symbol');
+if (prefill) {
+  input.value = prefill.toUpperCase();
+}
 
 loadRecent();

@@ -37,12 +37,12 @@ body {
   .layout {
     flex-direction: row;
     align-items: flex-start;
-    max-width: 820px;
+    max-width: 760px;
     justify-content: center;
   }
   .layout .card { order: 2; }
   .layout #recentPanel { order: 1; }
-  .side-panel { width: 220px; flex-shrink: 0; }
+  .side-panel { width: 180px; flex-shrink: 0; }
 }
 
 .card {
@@ -56,9 +56,9 @@ body {
 .panel {
   background: #1e293b;
   border-radius: 16px;
-  padding: 24px;
+  padding: 20px;
   width: 100%;
-  max-width: 340px;
+  max-width: 260px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
@@ -120,15 +120,15 @@ hr { border: none; border-top: 1px solid #334155; margin: 24px 0; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  padding: 9px 10px;
+  gap: 5px;
+  padding: 8px 6px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12.5px;
 }
 .stock-list li:hover { background: #334155; }
 .stock-list .sym { font-weight: 600; flex-shrink: 0; }
-.stock-list .price { color: #94a3b8; margin-left: auto; }
+.stock-list .price { color: #94a3b8; margin-left: auto; white-space: nowrap; }
 .stock-list .price.down { color: #f87171; }
 .stock-list .price.up { color: #4ade80; }
 .stock-list .sparkline { flex-shrink: 0; }

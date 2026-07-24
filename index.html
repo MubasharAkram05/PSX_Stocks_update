@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PSX Daily Price Tracker</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    display: flex;
+    justify-content: center;
+    padding: 60px 20px;
+    margin: 0;
+    min-height: 100vh;
+  }
+  .card {
+    background: #1e293b;
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+    font-size: 16px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  button, a.btn {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+  #saveBtn { background: #22c55e; color: #052e16; }
+  #saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .downloads { display: flex; gap: 10px; margin-top: 24px; }
+  .downloads a.btn { background: #334155; color: #e2e8f0; font-size: 13px; padding: 10px; }
+  .downloads a.btn:hover { background: #475569; }
+  #status { margin-top: 18px; font-size: 14px; line-height: 1.5; min-height: 20px; }
+  .ok { color: #4ade80; }
+  .err { color: #f87171; }
+  hr { border: none; border-top: 1px solid #334155; margin: 24px 0; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>PSX Daily Price Tracker</h1>
+    <p class="sub">Enter a PSX symbol (e.g. ENGRO, MEBL, LUCK). The current price and today's date will be saved.</p>
+    <input id="symbol" placeholder="e.g. ENGRO" autocomplete="off" />
+    <button id="saveBtn">Save Price</button>
+    <div id="status"></div>
+
+    <hr />
+    <p class="sub" style="margin-bottom:12px;">Download everything saved so far:</p>
+    <div class="downloads">
+      <a class="btn" href="/api/download?format=excel" download>Download Excel</a>
+      <a class="btn" href="/api/download?format=pdf" download>Download PDF</a>
+    </div>
+  </div>
+
+<script>
+  const input = document.getElementById('symbol');
+  const btn = document.getElementById('saveBtn');
+  const status = document.getElementById('status');
+
+  async function savePrice() {
+    const symbol = input.value.trim();
+    if (!symbol) return;
+
+    btn.disabled = true;
+    status.textContent = 'Fetching price and saving...';
+    status.className = '';
+
+    try {
+      const res = await fetch('/api/save-price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ symbol }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+
+      status.textContent = `Saved: ${data.symbol} = Rs. ${data.price} on ${data.date}`;
+      status.className = 'ok';
+      input.value = '';
+    } catch (err) {
+      status.textContent = err.message;
+      status.className = 'err';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  btn.addEventListener('click', savePrice);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') savePrice(); });
+</script>
+</body>
+</html>

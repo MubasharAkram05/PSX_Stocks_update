@@ -6,20 +6,28 @@ so far as an **Excel** or **PDF** file with one click.
 
 ## How it's structured
 
-- `index.html` — the page: symbol input, Save button, Download Excel /
-  Download PDF buttons, plus a sidebar with **Top PSX Stocks** and
-  **Recently Added** (both show live prices; click one to fill the
-  input)
-- `api/psx.js` — shared logic for fetching a PSX price (used by both
-  `save-price.js` and `top-stocks.js`)
-- `api/save-price.js` — fetches the PSX price and inserts a row into
-  the `psx_prices` table
-- `api/top-stocks.js` — returns current prices for 20 well-known PSX
-  symbols for the sidebar (edit the `TOP_SYMBOLS` list in that file to
-  change which stocks show up)
-- `api/recent.js` — returns the last 15 rows saved, for the sidebar
-- `api/download.js` — reads every saved row and streams back an
-  `.xlsx` or `.pdf` file, generated on the spot
+**Pages** (each with its own HTML, CSS, and JS file):
+- `index.html` / `styles/tracker.css` / `scripts/tracker.js` — Save
+  Price card + Recently Added list
+- `top-stocks.html` / `styles/top-stocks.css` / `scripts/top-stocks.js`
+  — dedicated page listing 20 well-known PSX stocks with live prices;
+  click one to jump to the home page with that symbol pre-filled
+- `stock-profit-calculator.html` / `styles/stock-profit-calculator.css`
+  / `scripts/stock-profit-calculator.js`
+- `mutual-fund-calculator.html` / `styles/mutual-fund-calculator.css`
+  / `scripts/mutual-fund-calculator.js`
+
+**Shared across every page:**
+- `styles/nav.css` / `scripts/nav.js` — the top nav bar and its
+  Calculators dropdown
+
+**Backend (Vercel serverless functions, one job per file):**
+- `api/psx.js` — fetches a PSX price (shared by save-price and top-stocks)
+- `api/save-price.js` — saves a price to the database
+- `api/top-stocks.js` — returns prices for the Top Stocks page
+- `api/recent.js` — returns the Recently Added list
+- `api/download.js` — generates the Excel/PDF download
+- `api/db.js` — shared database connection
 
 ## 1. Add a Postgres database in Vercel (no separate account needed)
 

@@ -4,114 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>PSX Daily Price Tracker</title>
-<style>
-  :root { color-scheme: light; }
-  body {
-    font-family: -apple-system, Segoe UI, Roboto, sans-serif;
-    background: #0f172a;
-    color: #e2e8f0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 20px 40px;
-    margin: 0;
-    min-height: 100vh;
-  }
-  .topnav { margin: 0 -20px 40px; }
-  .layout {
-    display: flex;
-    gap: 20px;
-    width: 100%;
-    max-width: 820px;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  .card {
-    background: #1e293b;
-    border-radius: 16px;
-    padding: 32px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  }
-  .sidebar {
-    background: #1e293b;
-    border-radius: 16px;
-    padding: 24px;
-    width: 100%;
-    max-width: 360px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  }
-  h1 { font-size: 20px; margin-bottom: 4px; }
-  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin: 0 0 12px; }
-  p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
-  input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px 14px;
-    border-radius: 8px;
-    border: 1px solid #334155;
-    background: #0f172a;
-    color: #e2e8f0;
-    font-size: 16px;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-  button, a.btn {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    font-weight: 600;
-    font-size: 15px;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-  }
-  #saveBtn { background: #22c55e; color: #052e16; }
-  #saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
-  .downloads { display: flex; gap: 10px; margin-top: 24px; }
-  .downloads a.btn { background: #334155; color: #e2e8f0; font-size: 13px; padding: 10px; }
-  .downloads a.btn:hover { background: #475569; }
-  #status { margin-top: 18px; font-size: 14px; line-height: 1.5; min-height: 20px; }
-  .ok { color: #4ade80; }
-  .err { color: #f87171; }
-  hr { border: none; border-top: 1px solid #334155; margin: 24px 0; }
-
-  .stock-list { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto; }
-  .stock-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 9px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  .stock-list li:hover { background: #334155; }
-  .stock-list .sym { font-weight: 600; }
-  .stock-list .price { color: #94a3b8; }
-  .stock-list .placeholder { color: #64748b; cursor: default; }
-  .stock-list .placeholder:hover { background: none; }
-  .sidebar-section + .sidebar-section { margin-top: 24px; }
-
-  /* ---- Top nav bar ---- */
-  .topnav { background: #0b1220; border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 50; width: 100%; }
-  .topnav-inner { max-width: 820px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; }
-  .topnav-brand { color: #4ade80; font-weight: 700; text-decoration: none; font-size: 15px; }
-  .topnav-links { display: flex; align-items: center; gap: 20px; }
-  .topnav-links > a { color: #e2e8f0; text-decoration: none; font-size: 14px; }
-  .topnav-links > a:hover, .topnav-links > a.active { color: #4ade80; }
-  .dropdown { position: relative; }
-  .dropbtn { background: none; border: none; color: #e2e8f0; font-size: 14px; cursor: pointer; font-family: inherit; padding: 0; }
-  .dropbtn:hover { color: #4ade80; }
-  .dropdown-content { display: none; position: absolute; top: 130%; left: 0; background: #1e293b; border: 1px solid #334155; border-radius: 8px; min-width: 220px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
-  .dropdown-content a { display: block; padding: 10px 14px; color: #e2e8f0; text-decoration: none; font-size: 13.5px; }
-  .dropdown-content a:hover { background: #334155; }
-  .dropdown.open .dropdown-content { display: block; }
-</style>
+<link rel="stylesheet" href="/styles/nav.css" />
+<link rel="stylesheet" href="/styles/tracker.css" />
 </head>
 <body>
 <nav class="topnav">
@@ -119,7 +13,7 @@
     <a href="/" class="topnav-brand">PSX Tools</a>
     <div class="topnav-links">
       <a href="/" class="active">Home</a>
-      <a href="/#top-stocks-section">Top Stocks</a>
+      <a href="/top-stocks.html">Top Stocks</a>
       <div class="dropdown">
         <button class="dropbtn" type="button">Calculators ▾</button>
         <div class="dropdown-content">
@@ -130,10 +24,11 @@
     </div>
   </div>
 </nav>
+
 <div class="layout">
   <div class="card">
     <h1>PSX Daily Price Tracker</h1>
-    <p class="sub">Enter a PSX symbol (e.g. ENGRO, MEBL, LUCK), or pick one from the side list. The current price and today's date will be saved.</p>
+    <p class="sub">Enter a PSX symbol (e.g. ENGRO, MEBL, LUCK), or pick one from the <a href="/top-stocks.html" style="color:#4ade80;">Top Stocks page</a>. The current price and today's date will be saved.</p>
     <input id="symbol" placeholder="e.g. ENGRO" autocomplete="off" />
     <button id="saveBtn">Save Price</button>
     <div id="status"></div>
@@ -147,114 +42,14 @@
   </div>
 
   <div class="sidebar">
-    <div class="sidebar-section" id="top-stocks-section">
-      <h2>Top PSX Stocks</h2>
-      <ul class="stock-list" id="topStocksList">
-        <li class="placeholder">Loading...</li>
-      </ul>
-    </div>
-    <div class="sidebar-section">
-      <h2>Recently Added</h2>
-      <ul class="stock-list" id="recentList">
-        <li class="placeholder">Loading...</li>
-      </ul>
-    </div>
+    <h2>Recently Added</h2>
+    <ul class="stock-list" id="recentList">
+      <li class="placeholder">Loading...</li>
+    </ul>
   </div>
 </div>
 
-<script>
-  const input = document.getElementById('symbol');
-  const btn = document.getElementById('saveBtn');
-  const status = document.getElementById('status');
-  const topStocksList = document.getElementById('topStocksList');
-  const recentList = document.getElementById('recentList');
-
-  async function savePrice() {
-    const symbol = input.value.trim();
-    if (!symbol) return;
-
-    btn.disabled = true;
-    status.textContent = 'Fetching price and saving...';
-    status.className = '';
-
-    try {
-      const res = await fetch('/api/save-price', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ symbol }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
-
-      status.textContent = `Saved: ${data.symbol} = Rs. ${data.price} on ${data.date}`;
-      status.className = 'ok';
-      input.value = '';
-      loadRecent(); // refresh the recently-added list
-    } catch (err) {
-      status.textContent = err.message;
-      status.className = 'err';
-    } finally {
-      btn.disabled = false;
-    }
-  }
-
-  btn.addEventListener('click', savePrice);
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') savePrice(); });
-
-  function renderList(el, items, emptyText) {
-    el.innerHTML = '';
-    if (!items || items.length === 0) {
-      const li = document.createElement('li');
-      li.className = 'placeholder';
-      li.textContent = emptyText;
-      el.appendChild(li);
-      return;
-    }
-    items.forEach((item) => {
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="sym">${item.symbol}</span><span class="price">Rs. ${item.price}</span>`;
-      li.addEventListener('click', () => {
-        input.value = item.symbol;
-        input.focus();
-      });
-      el.appendChild(li);
-    });
-  }
-
-  async function loadTopStocks() {
-    try {
-      const res = await fetch('/api/top-stocks');
-      const data = await res.json();
-      renderList(topStocksList, data.stocks, 'Could not load top stocks.');
-    } catch {
-      renderList(topStocksList, [], 'Could not load top stocks.');
-    }
-  }
-
-  async function loadRecent() {
-    try {
-      const res = await fetch('/api/recent');
-      const data = await res.json();
-      renderList(recentList, data.recent, 'Nothing saved yet.');
-    } catch {
-      renderList(recentList, [], 'Nothing saved yet.');
-    }
-  }
-
-  loadTopStocks();
-  loadRecent();
-
-  // Calculators dropdown toggle
-  document.querySelectorAll('.dropdown > .dropbtn').forEach((b) => {
-    b.addEventListener('click', (e) => {
-      e.stopPropagation();
-      b.parentElement.classList.toggle('open');
-    });
-  });
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown.open').forEach((d) => d.classList.remove('open'));
-  });
-</script>
+<script src="/scripts/nav.js"></script>
+<script src="/scripts/tracker.js"></script>
 </body>
 </html>

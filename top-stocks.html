@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Top PSX Stocks</title>
+<link rel="stylesheet" href="/styles/nav.css" />
+<link rel="stylesheet" href="/styles/top-stocks.css" />
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="topnav-brand">PSX Tools</a>
+    <div class="topnav-links">
+      <a href="/">Home</a>
+      <a href="/top-stocks.html" class="active">Top Stocks</a>
+      <div class="dropdown">
+        <button class="dropbtn" type="button">Calculators ▾</button>
+        <div class="dropdown-content">
+          <a href="/stock-profit-calculator.html">Stock Profit Calculator</a>
+          <a href="/mutual-fund-calculator.html">Mutual Fund Calculator</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Top PSX Stocks</h1>
+  <p class="sub">Current prices for 20 well-known, heavily-traded PSX symbols. Click one to save its price to your tracker.</p>
+  <div class="grid" id="stockGrid">
+    <div class="placeholder">Loading...</div>
+  </div>
+</div>
+
+<script src="/scripts/nav.js"></script>
+<script src="/scripts/top-stocks.js"></script>
+</body>
+</html>

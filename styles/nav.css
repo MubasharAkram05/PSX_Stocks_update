@@ -1,0 +1,82 @@
+/* styles/nav.css
+   Shared top navigation bar — used on every page (index, top-stocks,
+   stock-profit-calculator, mutual-fund-calculator). Keeping it in one
+   file means the nav only needs to be updated in one place. */
+
+.topnav {
+  background: #0b1220;
+  border-bottom: 1px solid #1e293b;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+}
+.topnav-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+}
+.topnav-brand {
+  color: #4ade80;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 15px;
+}
+.topnav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.topnav-links > a {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 14px;
+}
+.topnav-links > a:hover,
+.topnav-links > a.active {
+  color: #4ade80;
+}
+.dropdown {
+  position: relative;
+}
+.dropbtn {
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+.dropbtn:hover {
+  color: #4ade80;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 130%;
+  left: 0;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  min-width: 220px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+.dropdown-content a {
+  display: block;
+  padding: 10px 14px;
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 13.5px;
+}
+.dropdown-content a:hover {
+  background: #334155;
+}
+.dropdown.open .dropdown-content {
+  display: block;
+}

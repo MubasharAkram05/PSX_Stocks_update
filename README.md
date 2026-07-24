@@ -1,21 +1,30 @@
-# PSX Daily Price Tracker — Database Version
+# PSX Daily Price Tracker
 
 Type a PSX symbol → it fetches the current price and saves it into a
-database (no Google account needed at all). Download everything saved
-so far as an **Excel** or **PDF** file with one click.
+database. Browse a curated stock list with sparkline trends, read
+related news, and download everything as Excel or PDF.
 
 ## How it's structured
 
 **Pages** (each with its own HTML, CSS, and JS file):
 - `index.html` / `styles/tracker.css` / `scripts/tracker.js` — Save
-  Price card + Recently Added list
+  Price card in the center. On laptop/tablet screens (900px+): Recently
+  Added on the left, "Consider — Trending Down" suggestions on the
+  right. A KSE-100 index bar sits at the bottom (best-effort — shows
+  "Unavailable" if PSX's index endpoint doesn't respond).
 - `top-stocks.html` / `styles/top-stocks.css` / `scripts/top-stocks.js`
-  — 50+ PSX stocks across sectors, plus anything you've recently
-  saved. Filter buttons: All, Recently Added, Cheap, Higher Priced,
-  High Dividend, Future Growth, Petroleum, Fertilizer, Medicine.
-  Click a stock to jump to the home page with it pre-filled.
-- `news.html` / `styles/news.css` / `scripts/news.js` — recent news
-  about PSX-listed companies (earnings, dividends, expansion plans)
+  — curated, actively-traded PSX stocks (Bank sector and thin/illiquid
+  names deliberately excluded). Two separate dropdowns: **Category**
+  (All, Recently Added, Cheap, Higher Priced, High Dividend, Future
+  Growth) and **Sector** (Petroleum, Fertilizer, Medicine, Cement,
+  Tech, Power, Chemical, Automobile). Each card shows a small
+  sparkline — green if the price trended up over the last ~7 trading
+  days, red if down. Click a stock to jump to the home page with it
+  pre-filled.
+- `news.html` / `styles/news.css` / `scripts/news.js` — news about
+  PSX-listed companies. Search box for a specific stock/company, plus
+  a "Dividend / AGM News" filter for dividend announcements and board
+  meeting news.
 - `stock-profit-calculator.html` / `styles/stock-profit-calculator.css`
   / `scripts/stock-profit-calculator.js`
 - `mutual-fund-calculator.html` / `styles/mutual-fund-calculator.css`
@@ -26,67 +35,54 @@ so far as an **Excel** or **PDF** file with one click.
   Calculators dropdown
 
 **Backend (Vercel serverless functions, one job per file):**
-- `api/psx.js` — fetches a PSX price (shared by save-price and top-stocks)
+- `api/psx.js` — fetches PSX prices; `getStockPriceWithTrend()` also
+  returns a short price history for sparklines (no extra API calls —
+  reuses the same data)
 - `api/save-price.js` — saves a price to the database
-- `api/top-stocks.js` — the curated 50+ stock list, merged with
-  recently-saved symbols, tagged by sector/dividend/growth/price
+- `api/top-stocks.js` — the curated stock list, merged with any
+  recently-saved symbol not already on it, tagged by sector/dividend/
+  growth/price/trend
 - `api/recent.js` — returns the Recently Added list
-- `api/news.js` — fetches PSX-related news headlines (Google News RSS,
-  no API key needed)
+- `api/psx-index.js` — best-effort KSE-100 index level for the home
+  page footer
+- `api/news.js` — fetches PSX-related news (Google News RSS, no API
+  key needed); supports `?q=` search and `&dividend=true`
 - `api/download.js` — generates the Excel/PDF download
 - `api/db.js` — shared database connection
 
-**A note on the curation:** PSX doesn't publish a "top by dividend
-yield" or "top growth stocks" API, so the sector/dividend/growth tags
-in `api/top-stocks.js` are a static, hand-picked grouping meant to
-help browsing — not live financial data. Edit the `STOCKS` array in
-that file any time to add, remove, or re-tag symbols. The "cheap" vs
-"higher priced" split IS computed live, from the fetched price (≤ Rs.
-100 = cheap).
+## Honesty notes on the curated/best-effort parts
 
-## 1. Add a Postgres database in Vercel (no separate account needed)
+- **Sector, dividend, and growth tags** in `api/top-stocks.js` are a
+  static, hand-picked list — PSX doesn't publish a "top dividend" or
+  "top growth" API. Edit the `STOCKS` array anytime to adjust.
+- **"Cheap" vs "Higher Priced" and the sparkline trend direction ARE**
+  computed live from real fetched prices.
+- **Risky/illiquid names removed:** this list was trimmed to more
+  actively-traded, larger names based on general market knowledge —
+  not a real volatility calculation (PSX doesn't expose one via this
+  unofficial data source).
+- **KSE-100 index bar** tries the same unofficial PSX endpoint used
+  for stock prices. If PSX doesn't support that symbol the same way,
+  it shows "Unavailable" rather than guessing.
+- **News** comes from Google News' public search feed, biased toward
+  Pakistan/PSX terms — it's real, live news, but not a guarantee every
+  result is 100% PSX-specific, since it isn't pulled from PSX's own
+  (rights-restricted) announcements feed.
 
-1. Open your project on vercel.com
-2. Go to the **Storage** tab → **Create Database**
-3. Choose **Postgres** (Vercel may label this **Neon** — it's the same
-   thing, Neon is the Postgres provider behind Vercel's storage now)
-   → give it any name → **Create**
-4. When asked, **connect it to your project** (select Production, and
-   Preview/Development too if you want)
+## Setup
 
-That's it — Vercel automatically adds the database connection details
-(`POSTGRES_URL` and related variables) to your project's environment
-variables. Nothing to copy-paste manually.
+### 1. Add a Postgres database in Vercel
+Storage tab → Create Database → Postgres (may show as "Neon") →
+connect it to your project. Vercel auto-adds the connection env vars.
 
-## 2. Redeploy
+### 2. Deploy
+Push to GitHub, import into Vercel, redeploy after adding the
+database. First save auto-creates the `psx_prices` table.
 
-**Deployments** tab → latest deployment → **...** menu → **Redeploy**.
-
-The very first time you save a price, the code automatically creates
-the `psx_prices` table if it doesn't exist yet — no manual database
-setup required.
-
-## 3. Use it
-
-Open your Vercel URL (works on mobile too):
-- Type a symbol (e.g. `ENGRO`) → **Save Price**
-- Click **Download Excel** or **Download PDF** any time to get every
-  row saved so far as a file
-
-## Testing locally (optional)
-
+### 3. Testing locally (optional)
 ```bash
 npm install -g vercel
 npm install
-vercel env pull .env.development.local   # pulls the DB connection info from Vercel
+vercel env pull .env.development.local
 vercel dev
 ```
-
-Opens at `http://localhost:3000`, using the same live database.
-
-## Notes on the PSX price source
-
-Prices come from PSX's own data portal (`dps.psx.com.pk`) — tries the
-end-of-day (closing) price first, falls back to the latest intraday
-tick. If PSX changes their site structure, check `getStockPrice()` in
-`api/save-price.js`; Vercel's **Logs** tab shows the raw error.

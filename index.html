@@ -27,6 +27,14 @@
 </nav>
 
 <div class="layout">
+
+  <div class="panel side-panel" id="recentPanel">
+    <h2>Recently Added</h2>
+    <ul class="stock-list" id="recentList">
+      <li class="placeholder">Loading...</li>
+    </ul>
+  </div>
+
   <div class="card">
     <h1>PSX Daily Price Tracker</h1>
     <p class="sub">Enter a PSX symbol (e.g. ENGRO, MEBL, LUCK), or pick one from the <a href="/top-stocks.html" style="color:#4ade80;">Top Stocks page</a>. The current price and today's date will be saved.</p>
@@ -42,12 +50,19 @@
     </div>
   </div>
 
-  <div class="sidebar">
-    <h2>Recently Added</h2>
-    <ul class="stock-list" id="recentList">
+  <div class="panel side-panel" id="suggestPanel">
+    <h2>Consider — Trending Down</h2>
+    <ul class="stock-list" id="suggestList">
       <li class="placeholder">Loading...</li>
     </ul>
   </div>
+
+</div>
+
+<div class="index-bar" id="indexBar">
+  <span class="index-label">KSE-100</span>
+  <span class="index-points" id="indexPoints">Loading...</span>
+  <span class="index-direction" id="indexDirection"></span>
 </div>
 
 <script src="/scripts/nav.js"></script>

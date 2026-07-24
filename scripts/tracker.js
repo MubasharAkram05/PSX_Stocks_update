@@ -1,12 +1,15 @@
 // scripts/tracker.js
-// Logic specific to index.html: saving a price and showing the
-// Recently Added list. Top Stocks now lives on its own page
-// (top-stocks.html), fetched by scripts/top-stocks.js instead.
+// Logic specific to index.html: saving a price, the Recently Added
+// list, the "trending down" suggestions panel, and the KSE-100 index
+// bar at the bottom.
 
 const input = document.getElementById('symbol');
 const btn = document.getElementById('saveBtn');
 const status = document.getElementById('status');
 const recentList = document.getElementById('recentList');
+const suggestList = document.getElementById('suggestList');
+const indexPoints = document.getElementById('indexPoints');
+const indexDirection = document.getElementById('indexDirection');
 
 async function savePrice() {
   const symbol = input.value.trim();
@@ -41,7 +44,7 @@ async function savePrice() {
 btn.addEventListener('click', savePrice);
 input.addEventListener('keydown', (e) => { if (e.key === 'Enter') savePrice(); });
 
-function renderList(el, items, emptyText) {
+function renderList(el, items, emptyText, { showDownPrice } = {}) {
   el.innerHTML = '';
   if (!items || items.length === 0) {
     const li = document.createElement('li');
@@ -52,7 +55,8 @@ function renderList(el, items, emptyText) {
   }
   items.forEach((item) => {
     const li = document.createElement('li');
-    li.innerHTML = `<span class="sym">${item.symbol}</span><span class="price">Rs. ${item.price}</span>`;
+    const priceClass = showDownPrice ? 'price down' : 'price';
+    li.innerHTML = `<span class="sym">${item.symbol}</span><span class="${priceClass}">Rs. ${item.price}</span>`;
     li.addEventListener('click', () => {
       input.value = item.symbol;
       input.focus();
@@ -71,6 +75,43 @@ async function loadRecent() {
   }
 }
 
+// "Consider" panel: stocks currently trending down, drawn from the
+// Top Stocks list (a possible buying opportunity, not advice).
+async function loadSuggestions() {
+  try {
+    const res = await fetch('/api/top-stocks');
+    const data = await res.json();
+    const declining = (data.stocks || []).filter((s) => s.direction === 'down').slice(0, 8);
+    renderList(suggestList, declining, 'No declining stocks right now.', { showDownPrice: true });
+  } catch {
+    renderList(suggestList, [], 'Could not load suggestions.');
+  }
+}
+
+async function loadIndex() {
+  try {
+    const res = await fetch('/api/psx-index');
+    const data = await res.json();
+    if (data.points == null) {
+      indexPoints.textContent = 'Unavailable right now';
+      indexDirection.textContent = '';
+      return;
+    }
+    indexPoints.textContent = `${data.points} pts`;
+    if (data.direction === 'up') {
+      indexDirection.textContent = '▲ Up';
+      indexDirection.className = 'index-direction up';
+    } else if (data.direction === 'down') {
+      indexDirection.textContent = '▼ Down';
+      indexDirection.className = 'index-direction down';
+    } else {
+      indexDirection.textContent = '';
+    }
+  } catch {
+    indexPoints.textContent = 'Unavailable right now';
+  }
+}
+
 // If arriving from the Top Stocks page (e.g. /?symbol=ENGRO), prefill the input
 const params = new URLSearchParams(window.location.search);
 const prefill = params.get('symbol');
@@ -79,3 +120,5 @@ if (prefill) {
 }
 
 loadRecent();
+loadSuggestions();
+loadIndex();

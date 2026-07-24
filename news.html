@@ -28,7 +28,17 @@
 
 <div class="page">
   <h1>PSX &amp; Market News</h1>
-  <p class="sub">Recent news related to PSX-listed companies — earnings, dividend announcements, expansion plans, and stories that could move stock prices. Pulled from general news sources, not PSX's official feed.</p>
+  <p class="sub">News related to PSX-listed companies — earnings, dividend announcements, expansion plans, and stories that could move stock prices. Pulled from general news sources, not PSX's official feed.</p>
+
+  <div class="search-row">
+    <input id="searchInput" placeholder="Search a stock or company (e.g. ENGRO, Lucky Cement)" autocomplete="off" />
+    <button id="searchBtn">Search</button>
+  </div>
+  <div class="filter-row">
+    <button class="filter-btn active" id="allBtn">All News</button>
+    <button class="filter-btn" id="dividendBtn">Dividend / AGM News</button>
+  </div>
+
   <ul class="news-list" id="newsList">
     <li class="placeholder">Loading...</li>
   </ul>

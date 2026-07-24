@@ -1,7 +1,14 @@
 // scripts/news.js
-// Fetches and renders PSX-related news headlines on news.html
+// Fetches and renders PSX-related news headlines on news.html,
+// with a search box and a Dividend/AGM-focused filter.
 
 const newsList = document.getElementById('newsList');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const allBtn = document.getElementById('allBtn');
+const dividendBtn = document.getElementById('dividendBtn');
+
+let dividendOnly = false;
 
 function renderNews(items) {
   newsList.innerHTML = '';
@@ -25,13 +32,35 @@ function renderNews(items) {
 }
 
 async function loadNews() {
+  newsList.innerHTML = '<li class="placeholder">Loading...</li>';
+  const params = new URLSearchParams();
+  const q = searchInput.value.trim();
+  if (q) params.set('q', q);
+  if (dividendOnly) params.set('dividend', 'true');
+
   try {
-    const res = await fetch('/api/news');
+    const res = await fetch(`/api/news?${params.toString()}`);
     const data = await res.json();
     renderNews(data.news);
   } catch {
     renderNews([]);
   }
 }
+
+searchBtn.addEventListener('click', loadNews);
+searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadNews(); });
+
+allBtn.addEventListener('click', () => {
+  dividendOnly = false;
+  allBtn.classList.add('active');
+  dividendBtn.classList.remove('active');
+  loadNews();
+});
+dividendBtn.addEventListener('click', () => {
+  dividendOnly = true;
+  dividendBtn.classList.add('active');
+  allBtn.classList.remove('active');
+  loadNews();
+});
 
 loadNews();

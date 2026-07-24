@@ -28,18 +28,35 @@
 
 <div class="page">
   <h1>Top PSX Stocks</h1>
-  <p class="sub">50+ PSX symbols across major sectors, plus anything you've recently saved. Click a stock to jump to the tracker with it pre-filled.</p>
+  <p class="sub">Actively-traded PSX symbols across major sectors, plus anything you've recently saved. Click a stock to jump to the tracker with it pre-filled.</p>
 
-  <div class="filters" id="filters">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="recent">Recently Added</button>
-    <button class="filter-btn" data-filter="cheap">Cheap</button>
-    <button class="filter-btn" data-filter="higher">Higher Priced</button>
-    <button class="filter-btn" data-filter="dividend">High Dividend</button>
-    <button class="filter-btn" data-filter="growth">Future Growth</button>
-    <button class="filter-btn" data-filter="petroleum">Petroleum</button>
-    <button class="filter-btn" data-filter="fertilizer">Fertilizer</button>
-    <button class="filter-btn" data-filter="pharma">Medicine</button>
+  <div class="filter-bar">
+    <div class="dropdown filter-dropdown">
+      <button class="dropbtn filter-dropbtn" type="button" id="categoryBtn">Category: All ▾</button>
+      <div class="dropdown-content">
+        <a href="#" data-category="all">All</a>
+        <a href="#" data-category="recent">Recently Added</a>
+        <a href="#" data-category="cheap">Cheap</a>
+        <a href="#" data-category="higher">Higher Priced</a>
+        <a href="#" data-category="dividend">High Dividend</a>
+        <a href="#" data-category="growth">Future Growth</a>
+      </div>
+    </div>
+
+    <div class="dropdown filter-dropdown">
+      <button class="dropbtn filter-dropbtn" type="button" id="sectorBtn">Sector: All ▾</button>
+      <div class="dropdown-content">
+        <a href="#" data-sector="all">All Sectors</a>
+        <a href="#" data-sector="petroleum">Petroleum</a>
+        <a href="#" data-sector="fertilizer">Fertilizer</a>
+        <a href="#" data-sector="pharma">Medicine</a>
+        <a href="#" data-sector="cement">Cement</a>
+        <a href="#" data-sector="tech">Technology</a>
+        <a href="#" data-sector="power">Power</a>
+        <a href="#" data-sector="chemical">Chemical</a>
+        <a href="#" data-sector="auto">Automobile</a>
+      </div>
+    </div>
   </div>
 
   <div class="grid" id="stockGrid">

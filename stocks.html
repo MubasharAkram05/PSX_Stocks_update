@@ -28,7 +28,28 @@
 
 <div class="page">
   <h1>Stocks by Sector</h1>
-  <p class="sub">Every stock you've saved, grouped by sector. Click one to jump to the tracker with it pre-filled.</p>
+  <p class="sub">Add stocks, assign a sector, and remove any you no longer want tracked here. Click a stock to jump to the tracker with it pre-filled.</p>
+
+  <div class="add-form">
+    <input id="addSymbol" placeholder="e.g. ENGRO" autocomplete="off" />
+    <select id="addSector">
+      <option value="petroleum">Petroleum</option>
+      <option value="fertilizer">Fertilizer</option>
+      <option value="pharma">Medicine</option>
+      <option value="cement">Cement</option>
+      <option value="tech">Technology</option>
+      <option value="power">Power</option>
+      <option value="chemical">Chemical</option>
+      <option value="auto">Automobile</option>
+      <option value="engineering">Engineering</option>
+      <option value="steel">Steel</option>
+      <option value="bank">Bank</option>
+      <option value="other" selected>Other</option>
+    </select>
+    <button id="addStockBtn">Add Stock</button>
+  </div>
+  <div id="addStatus" class="status"></div>
+
   <div id="sectorGroups">
     <p class="placeholder">Loading...</p>
   </div>

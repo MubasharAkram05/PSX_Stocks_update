@@ -1,7 +1,12 @@
 // scripts/stocks.js
-// Fetches every saved stock and groups them into labeled sector rows.
+// Fetches every added stock, groups them into labeled sector rows,
+// and handles the Add Stock form + per-card Remove button.
 
 const container = document.getElementById('sectorGroups');
+const addSymbolInput = document.getElementById('addSymbol');
+const addSectorSelect = document.getElementById('addSector');
+const addStockBtn = document.getElementById('addStockBtn');
+const addStatus = document.getElementById('addStatus');
 
 const SECTOR_LABELS = {
   petroleum: 'Petroleum', fertilizer: 'Fertilizer', pharma: 'Medicine',
@@ -31,7 +36,7 @@ function renderGroups(stocks) {
   container.innerHTML = '';
 
   if (!stocks || stocks.length === 0) {
-    container.innerHTML = '<p class="placeholder">Nothing saved yet — save a stock from the home page to see it here.</p>';
+    container.innerHTML = '<p class="placeholder">Nothing added yet — use the form above to add a stock.</p>';
     return;
   }
 
@@ -54,17 +59,25 @@ function renderGroups(stocks) {
     row.className = 'sector-row';
 
     groups[key].forEach((item) => {
-      const a = document.createElement('a');
-      a.className = 'stock-card';
-      a.href = `/?symbol=${encodeURIComponent(item.symbol)}`;
-      a.innerHTML = `
-        ${sparklineSvg(item.trend, item.direction, { w: 40, h: 20 })}
+      const card = document.createElement('div');
+      card.className = 'stock-card';
+      card.innerHTML = `
+        ${sparklineSvg(item.trend, item.direction, { w: 36, h: 20 })}
         <div class="info">
           <span class="sym">${item.symbol}</span>
           <span class="price">Rs. ${item.price}</span>
         </div>
+        <button class="remove-btn" title="Remove ${item.symbol}">✕</button>
       `;
-      row.appendChild(a);
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.remove-btn')) return; // handled separately
+        window.location.href = `/?symbol=${encodeURIComponent(item.symbol)}`;
+      });
+      card.querySelector('.remove-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeStock(item.symbol);
+      });
+      row.appendChild(card);
     });
 
     section.appendChild(row);
@@ -79,6 +92,52 @@ async function loadStocks() {
     renderGroups(data.stocks);
   } catch {
     container.innerHTML = '<p class="placeholder">Could not load stocks right now.</p>';
+  }
+}
+
+async function addStock() {
+  const symbol = addSymbolInput.value.trim();
+  if (!symbol) return;
+
+  addStockBtn.disabled = true;
+  addStatus.textContent = 'Adding...';
+  addStatus.className = 'status';
+
+  try {
+    const res = await fetch('/api/manage-stocks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ symbol, sector: addSectorSelect.value }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not add that stock.');
+
+    addSymbolInput.value = '';
+    addStatus.textContent = '';
+    loadStocks();
+  } catch (err) {
+    addStatus.textContent = err.message;
+    addStatus.className = 'status err';
+  } finally {
+    addStockBtn.disabled = false;
+  }
+}
+addStockBtn.addEventListener('click', addStock);
+addSymbolInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addStock(); });
+
+async function removeStock(symbol) {
+  if (!confirm(`Remove ${symbol} from this list?`)) return;
+  try {
+    const res = await fetch('/api/manage-stocks', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ symbol }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not remove that stock.');
+    loadStocks();
+  } catch (err) {
+    alert(err.message);
   }
 }
 

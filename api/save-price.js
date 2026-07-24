@@ -1,33 +1,13 @@
 // api/save-price.js
 // Called by the frontend at POST /api/save-price with { symbol }.
-// Fetches the current PSX price and inserts a row into the
-// "psx_prices" table in the database.
+// Saves the LOWEST price seen for that symbol TODAY. If a row for
+// this symbol + today already exists (saved earlier, manually or by
+// the daily cron job), it's updated only if the new price is lower —
+// never a duplicate row, never a higher price overwriting a lower one.
 
-const { pool } = require('./db');
-const { getStockPrice } = require('./psx');
+const { pool, ensureSchema } = require('./db');
+const { getDailyLowPrice } = require('./psx');
 
-// -------------------------------------------------------
-// Make sure the table exists, then insert the row
-// -------------------------------------------------------
-async function saveToDatabase({ date, symbol, price }) {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS psx_prices (
-      id SERIAL PRIMARY KEY,
-      date DATE NOT NULL,
-      symbol TEXT NOT NULL,
-      price NUMERIC NOT NULL,
-      created_at TIMESTAMP DEFAULT NOW()
-    )
-  `);
-  await pool.query(
-    `INSERT INTO psx_prices (date, symbol, price) VALUES ($1, $2, $3)`,
-    [date, symbol, price]
-  );
-}
-
-// -------------------------------------------------------
-// The serverless function Vercel runs
-// -------------------------------------------------------
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -39,9 +19,31 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const result = await getStockPrice(symbol);
-    await saveToDatabase(result);
-    res.status(200).json({ success: true, ...result });
+    const result = await getDailyLowPrice(symbol);
+    await ensureSchema();
+
+    await pool.query(
+      `INSERT INTO psx_prices (date, symbol, price)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (symbol, date)
+       DO UPDATE SET price = LEAST(psx_prices.price, EXCLUDED.price)`,
+      [result.date, result.symbol, result.price]
+    );
+
+    // Report back whatever ended up stored (could be an earlier,
+    // lower save from today rather than this attempt's price).
+    const stored = await pool.query(
+      `SELECT price FROM psx_prices WHERE symbol = $1 AND date = $2`,
+      [result.symbol, result.date]
+    );
+    const finalPrice = stored.rows[0] ? Number(stored.rows[0].price) : result.price;
+
+    res.status(200).json({
+      success: true,
+      symbol: result.symbol,
+      date: result.date,
+      price: finalPrice,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });

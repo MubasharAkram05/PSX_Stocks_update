@@ -11,6 +11,7 @@
 <nav class="topnav">
   <div class="topnav-inner">
     <a href="/" class="topnav-brand">PSX Tools</a>
+    <span class="topnav-index" id="topnavIndex"></span>
     <div class="topnav-links">
       <a href="/">Home</a>
       <a href="/top-stocks.html" class="active">Top Stocks</a>
@@ -28,19 +29,13 @@
 
 <div class="page">
   <h1>Top PSX Stocks</h1>
-  <p class="sub">Actively-traded PSX symbols across major sectors, plus anything you've recently saved. Click a stock to jump to the tracker with it pre-filled.</p>
-
-  <div class="trending-section" id="trendingSection" style="display:none;">
-    <h2>📉 Trending Down</h2>
-    <div class="grid" id="trendingGrid"></div>
-  </div>
+  <p class="sub">Every stock you've saved, in one place. Filter by category or sector below — click a stock to jump to the tracker with it pre-filled.</p>
 
   <div class="filter-bar">
     <div class="dropdown filter-dropdown">
       <button class="dropbtn filter-dropbtn" type="button" id="categoryBtn">Category: All ▾</button>
       <div class="dropdown-content">
         <a href="#" data-category="all">All</a>
-        <a href="#" data-category="recent">Recently Added</a>
         <a href="#" data-category="cheap">Cheap</a>
         <a href="#" data-category="higher">Higher Priced</a>
         <a href="#" data-category="dividend">High Dividend</a>

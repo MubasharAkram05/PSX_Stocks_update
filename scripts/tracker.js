@@ -1,15 +1,12 @@
 // scripts/tracker.js
-// Logic specific to index.html: saving a price, the Recently Added
-// list, the "trending down" suggestions panel, and the KSE-100 index
-// bar at the bottom.
+// Logic specific to index.html: saving a price and the Recently
+// Added list. The market index now lives in the shared nav bar
+// (see scripts/nav.js), since it shows on every page.
 
 const input = document.getElementById('symbol');
 const btn = document.getElementById('saveBtn');
 const status = document.getElementById('status');
 const recentList = document.getElementById('recentList');
-const suggestList = document.getElementById('suggestList');
-const indexPoints = document.getElementById('indexPoints');
-const indexDirection = document.getElementById('indexDirection');
 
 async function savePrice() {
   const symbol = input.value.trim();
@@ -79,43 +76,6 @@ async function loadRecent() {
   }
 }
 
-// "Consider" panel: stocks currently trending down, drawn from the
-// Top Stocks list (a possible buying opportunity, not advice).
-async function loadSuggestions() {
-  try {
-    const res = await fetch('/api/top-stocks');
-    const data = await res.json();
-    const declining = (data.stocks || []).filter((s) => s.direction === 'down').slice(0, 8);
-    renderList(suggestList, declining, 'No declining stocks right now.');
-  } catch {
-    renderList(suggestList, [], 'Could not load suggestions.');
-  }
-}
-
-async function loadIndex() {
-  try {
-    const res = await fetch('/api/psx-index');
-    const data = await res.json();
-    if (data.points == null) {
-      indexPoints.textContent = 'Unavailable right now';
-      indexDirection.textContent = '';
-      return;
-    }
-    indexPoints.textContent = `${data.points} pts`;
-    if (data.direction === 'up') {
-      indexDirection.textContent = '▲ Up';
-      indexDirection.className = 'index-direction up';
-    } else if (data.direction === 'down') {
-      indexDirection.textContent = '▼ Down';
-      indexDirection.className = 'index-direction down';
-    } else {
-      indexDirection.textContent = '';
-    }
-  } catch {
-    indexPoints.textContent = 'Unavailable right now';
-  }
-}
-
 // If arriving from the Top Stocks page (e.g. /?symbol=ENGRO), prefill the input
 const params = new URLSearchParams(window.location.search);
 const prefill = params.get('symbol');
@@ -124,5 +84,3 @@ if (prefill) {
 }
 
 loadRecent();
-loadSuggestions();
-loadIndex();

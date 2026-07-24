@@ -30,20 +30,18 @@ body {
 }
 .layout .card { order: 1; }
 .layout #recentPanel { order: 2; }
-.layout #suggestPanel { order: 3; }
 
-/* Laptop / tablet and up: three columns side by side —
-   Recently Added (left) / card (center) / suggestions (right) */
+/* Laptop / tablet and up: two columns side by side —
+   Recently Added (left) / card (right) */
 @media (min-width: 900px) {
   .layout {
     flex-direction: row;
     align-items: flex-start;
-    max-width: 1100px;
+    max-width: 780px;
     justify-content: center;
   }
   .layout .card { order: 2; }
   .layout #recentPanel { order: 1; }
-  .layout #suggestPanel { order: 3; }
   .side-panel { width: 280px; flex-shrink: 0; }
 }
 
@@ -121,22 +119,3 @@ hr { border: none; border-top: 1px solid #334155; margin: 24px 0; }
 .stock-list .sparkline { flex-shrink: 0; }
 .stock-list .placeholder { color: #64748b; cursor: default; }
 .stock-list .placeholder:hover { background: none; }
-
-/* Market index bar at the very bottom */
-.index-bar {
-  margin-top: 32px;
-  width: 100%;
-  max-width: 1100px;
-  background: #1e293b;
-  border-radius: 12px;
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  font-size: 14px;
-}
-.index-label { color: #94a3b8; font-weight: 600; letter-spacing: 0.05em; }
-.index-points { font-weight: 700; }
-.index-direction.up { color: #4ade80; }
-.index-direction.down { color: #f87171; }

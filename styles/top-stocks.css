@@ -24,16 +24,6 @@ body {
 h1 { font-size: 22px; margin-bottom: 4px; }
 p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
 
-.trending-section { margin-bottom: 28px; }
-.trending-section h2 {
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #f87171;
-  margin: 0 0 12px;
-}
-.trending-section .grid { margin-bottom: 0; }
-
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
@@ -100,7 +90,6 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
   color: #cbd5e1;
   text-transform: capitalize;
 }
-.badge.recent { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
 .badge.dividend { background: rgba(250, 204, 21, 0.15); color: #facc15; }
 .badge.growth { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
 

@@ -45,7 +45,39 @@ async function getStockPrice(symbol) {
   );
 }
 
-module.exports = { getStockPrice, getStockPriceWithTrend };
+module.exports = { getStockPrice, getStockPriceWithTrend, getDailyLowPrice };
+
+// -------------------------------------------------------
+// Returns the LOWEST price recorded for the symbol so far today,
+// using intraday tick data (not just the latest/current price).
+// Falls back to the EOD close if intraday data isn't available.
+// -------------------------------------------------------
+async function getDailyLowPrice(symbol) {
+  const sym = symbol.trim().toUpperCase();
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  try {
+    const url = `https://dps.psx.com.pk/timeseries/int/${sym}`;
+    const { data } = await axios.get(url, { timeout: 8000 });
+    const rows = data && data.data ? data.data : data;
+    if (Array.isArray(rows) && rows.length > 0) {
+      const todayRows = rows.filter(
+        (r) => new Date(r[0] * 1000).toISOString().split('T')[0] === todayStr
+      );
+      const useRows = todayRows.length > 0 ? todayRows : rows;
+      const prices = useRows.map((r) => Number(r[1])).filter((p) => !isNaN(p) && p > 0);
+      if (prices.length > 0) {
+        return { symbol: sym, price: Math.min(...prices), date: todayStr };
+      }
+    }
+  } catch (err) {
+    console.log(`Daily low lookup failed for ${sym}: ${err.message}`);
+  }
+
+  // Fallback: EOD close, if intraday ticks aren't available
+  const plain = await getStockPrice(sym);
+  return { symbol: plain.symbol, price: plain.price, date: todayStr };
+}
 
 // -------------------------------------------------------
 // Same as getStockPrice, but also returns a short recent price

@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron-daily-save",
+      "schedule": "45 10 * * 1-5"
+    }
+  ]
+}

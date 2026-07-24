@@ -14,7 +14,6 @@ let activeSector = 'all';
 function matchesCategory(stock, category) {
   switch (category) {
     case 'all': return true;
-    case 'recent': return !!stock.fromRecent;
     case 'cheap': return stock.priceCategory === 'cheap';
     case 'higher': return stock.priceCategory === 'higher';
     case 'dividend': return !!stock.dividend;
@@ -30,7 +29,6 @@ function matchesSector(stock, sector) {
 
 function badgesFor(stock) {
   const badges = [];
-  if (stock.fromRecent) badges.push('<span class="badge recent">Recently Added</span>');
   if (stock.sector && stock.sector !== 'other') badges.push(`<span class="badge">${stock.sector}</span>`);
   if (stock.dividend) badges.push('<span class="badge dividend">High Dividend</span>');
   if (stock.growth) badges.push('<span class="badge growth">Growth</span>');
@@ -45,7 +43,9 @@ function renderStocks(stocks) {
   if (!stocks || stocks.length === 0) {
     const div = document.createElement('div');
     div.className = 'placeholder';
-    div.textContent = 'No stocks match this filter.';
+    div.textContent = allStocks.length === 0
+      ? "You haven't saved any stocks yet — save one from the home page to see it here."
+      : 'No stocks match this filter.';
     grid.appendChild(div);
     return;
   }
@@ -94,42 +94,14 @@ const sectorDropdown = sectorBtn.closest('.dropdown');
 wireDropdown(categoryDropdown, categoryBtn, 'category', (v) => { activeCategory = v; }, 'Category');
 wireDropdown(sectorDropdown, sectorBtn, 'sector', (v) => { activeSector = v; }, 'Sector');
 
-function renderTrendingDown(stocks) {
-  const section = document.getElementById('trendingSection');
-  const trendGrid = document.getElementById('trendingGrid');
-  const declining = stocks.filter((s) => s.direction === 'down').slice(0, 8);
-  if (declining.length === 0) {
-    section.style.display = 'none';
-    return;
-  }
-  section.style.display = 'block';
-  trendGrid.innerHTML = declining
-    .map(
-      (item) => `
-      <a class="stock-card" href="/?symbol=${encodeURIComponent(item.symbol)}">
-        <div class="top-row">
-          <div>
-            <span class="sym">${item.symbol}</span>
-            <span class="price">Rs. ${item.price}</span>
-          </div>
-          ${sparklineSvg(item.trend, item.direction)}
-        </div>
-        <div class="badges">${badgesFor(item)}</div>
-      </a>`
-    )
-    .join('');
-}
-
 async function loadTopStocks() {
   try {
     const res = await fetch('/api/top-stocks');
     const data = await res.json();
     allStocks = data.stocks || [];
-    renderTrendingDown(allStocks);
     applyFilters();
   } catch {
     allStocks = [];
-    renderTrendingDown([]);
     applyFilters();
   }
 }

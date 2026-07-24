@@ -26,6 +26,18 @@
   text-decoration: none;
   font-size: 15px;
 }
+.topnav-index {
+  color: #94a3b8;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.topnav-index .points { color: #e2e8f0; }
+.topnav-index .dir.up { color: #4ade80; }
+.topnav-index .dir.down { color: #f87171; }
 .topnav-links {
   display: flex;
   align-items: center;

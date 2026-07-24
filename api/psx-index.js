@@ -6,7 +6,7 @@
 // fails, the frontend just hides the index line rather than showing
 // wrong data.
 
-const { getStockPriceWithTrend } = require('./psx');
+const { getStockPriceWithTrend } = require('../lib/psx');
 
 module.exports = async (req, res) => {
   try {

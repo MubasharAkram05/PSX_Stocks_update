@@ -5,9 +5,9 @@
 // the daily cron job), it's updated only if the new price is lower —
 // never a duplicate row, never a higher price overwriting a lower one.
 
-const { pool, ensureSchema } = require('./db');
-const { getDailyLowPrice } = require('./psx');
-const { isAdmin } = require('./require-admin');
+const { pool, ensureSchema } = require('../lib/db');
+const { getDailyLowPrice } = require('../lib/psx');
+const { isAdmin } = require('../lib/require-admin');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {

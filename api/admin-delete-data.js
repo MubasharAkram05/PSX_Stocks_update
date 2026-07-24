@@ -3,8 +3,8 @@
 // removes all saved price rows within that (inclusive) date range.
 // Requires the 'x-admin-token' header (see require-admin.js).
 
-const { pool, ensureSchema } = require('./db');
-const { isAdmin } = require('./require-admin');
+const { pool, ensureSchema } = require('../lib/db');
+const { isAdmin } = require('../lib/require-admin');
 
 module.exports = async (req, res) => {
   if (!isAdmin(req)) {

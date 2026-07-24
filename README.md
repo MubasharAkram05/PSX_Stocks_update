@@ -43,7 +43,7 @@ public API, so it keeps working regardless of anyone's login state.
   day, the stored price is only replaced if the new one is **lower**.
   Example: save FFC at 535, then 538, then 533 the same day — the row
   stays at 533. A higher re-save never overwrites a lower one.
-- `api/db.js` → `ensureSchema()` handles this: creates the table if
+- `lib/db.js` → `ensureSchema()` handles this: creates the table if
   needed, de-duplicates any old rows from before this rule existed
   (keeping the lowest price), and adds the `(symbol, date)` unique
   constraint.
@@ -94,10 +94,17 @@ in their docs if it doesn't appear to fire.
 - `scripts/sparkline.js` — shared sparkline SVG builder
 
 **Backend (Vercel serverless functions, one job per file):**
-- `api/psx.js` — `getStockPrice()` (latest EOD price),
+
+`lib/db.js`, `lib/psx.js`, and `lib/require-admin.js` are shared helper
+modules, deliberately kept **outside** `/api` — Vercel's Hobby plan
+caps you at 12 serverless functions per deployment, and it treats
+*every* file directly inside `/api` as one, even plain helper modules
+with no route of their own. Keeping helpers in `/lib` and importing
+them (`require('../lib/db')`) keeps the actual endpoint count at 11.
+- `lib/psx.js` — `getStockPrice()` (latest EOD price),
   `getStockPriceWithTrend()` (+ sparkline history),
   `getDailyLowPrice()` (today's lowest intraday price)
-- `api/require-admin.js` — shared admin-token check
+- `lib/require-admin.js` — shared admin-token check
 - `api/admin-login.js` — checks the password against `ADMIN_PASSWORD`
 - `api/admin-stocks.js` — admin-only add/remove/reorder for the Top
   Stocks list (`stock_list` table)
@@ -108,7 +115,7 @@ in their docs if it doesn't appear to fire.
 - `api/psx-index.js` — best-effort KSE-100 index level for the header
 - `api/news.js` — PSX-related news (Google News RSS); supports `?q=` search and `&dividend=true`
 - `api/download.js` — Excel/PDF export of everything saved
-- `api/db.js` — shared database connection + schema/migration logic
+- `lib/db.js` — shared database connection + schema/migration logic
   (creates both `psx_prices` and `stock_list`, one-time-seeds
   `stock_list` from any symbols already saved on an existing deployment)
 

@@ -4,8 +4,8 @@
 // price and upserts it — same "one row per symbol per day, lowest
 // price wins" rule as manual saves via api/save-price.js.
 
-const { pool, ensureSchema } = require('./db');
-const { getDailyLowPrice } = require('./psx');
+const { pool, ensureSchema } = require('../lib/db');
+const { getDailyLowPrice } = require('../lib/psx');
 
 module.exports = async (req, res) => {
   try {

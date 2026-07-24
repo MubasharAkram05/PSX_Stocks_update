@@ -7,8 +7,8 @@
 // sparkline/direction still comes from a live trend fetch, purely for
 // the visual red/green trend line.
 
-const { pool } = require('./db');
-const { getStockPriceWithTrend } = require('./psx');
+const { pool } = require('../lib/db');
+const { getStockPriceWithTrend } = require('../lib/psx');
 
 module.exports = async (req, res) => {
   try {

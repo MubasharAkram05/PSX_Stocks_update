@@ -3,8 +3,8 @@
 //         popup message shown before saving a price)
 // POST { save_confirm_message } -> admin-only, updates a setting
 
-const { pool, ensureSchema } = require('./db');
-const { isAdmin } = require('./require-admin');
+const { pool, ensureSchema } = require('../lib/db');
+const { isAdmin } = require('../lib/require-admin');
 
 const DEFAULT_CONFIRM_MESSAGE = 'Save this price to the tracker?';
 

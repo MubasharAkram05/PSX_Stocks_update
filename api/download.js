@@ -4,7 +4,7 @@
 // Reads saved rows from the database (filtered by date range if given)
 // and streams back a file.
 
-const { pool } = require('./db');
+const { pool } = require('../lib/db');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 

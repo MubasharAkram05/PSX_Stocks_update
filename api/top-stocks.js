@@ -5,8 +5,8 @@
 // table (edited via admin.html + api/admin-stocks.js), not a static
 // lookup. Live price/trend is fetched fresh each time.
 
-const { pool, ensureSchema } = require('./db');
-const { getStockPriceWithTrend } = require('./psx');
+const { pool, ensureSchema } = require('../lib/db');
+const { getStockPriceWithTrend } = require('../lib/psx');
 
 module.exports = async (req, res) => {
   try {

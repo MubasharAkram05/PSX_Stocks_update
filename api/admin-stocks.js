@@ -8,8 +8,8 @@
 //   PATCH  { symbol, sector, dividend, growth }           -> edit a stock's metadata
 //          (PATCH is routed by whether `direction` is present)
 
-const { pool, ensureSchema } = require('./db');
-const { isAdmin } = require('./require-admin');
+const { pool, ensureSchema } = require('../lib/db');
+const { isAdmin } = require('../lib/require-admin');
 
 const VALID_SECTORS = [
   'petroleum', 'fertilizer', 'pharma', 'cement', 'tech',

@@ -94,9 +94,40 @@
   .stock-list .placeholder { color: #64748b; cursor: default; }
   .stock-list .placeholder:hover { background: none; }
   .sidebar-section + .sidebar-section { margin-top: 24px; }
+
+  /* ---- Top nav bar ---- */
+  .topnav { background: #0b1220; border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 50; width: 100%; }
+  .topnav-inner { max-width: 820px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; }
+  .topnav-brand { color: #4ade80; font-weight: 700; text-decoration: none; font-size: 15px; }
+  .topnav-links { display: flex; align-items: center; gap: 20px; }
+  .topnav-links > a { color: #e2e8f0; text-decoration: none; font-size: 14px; }
+  .topnav-links > a:hover, .topnav-links > a.active { color: #4ade80; }
+  .dropdown { position: relative; }
+  .dropbtn { background: none; border: none; color: #e2e8f0; font-size: 14px; cursor: pointer; font-family: inherit; padding: 0; }
+  .dropbtn:hover { color: #4ade80; }
+  .dropdown-content { display: none; position: absolute; top: 130%; left: 0; background: #1e293b; border: 1px solid #334155; border-radius: 8px; min-width: 220px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+  .dropdown-content a { display: block; padding: 10px 14px; color: #e2e8f0; text-decoration: none; font-size: 13.5px; }
+  .dropdown-content a:hover { background: #334155; }
+  .dropdown.open .dropdown-content { display: block; }
 </style>
 </head>
 <body>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="topnav-brand">PSX Tools</a>
+    <div class="topnav-links">
+      <a href="/" class="active">Home</a>
+      <a href="/#top-stocks-section">Top Stocks</a>
+      <div class="dropdown">
+        <button class="dropbtn" type="button">Calculators ▾</button>
+        <div class="dropdown-content">
+          <a href="/stock-profit-calculator.html">Stock Profit Calculator</a>
+          <a href="/mutual-fund-calculator.html">Mutual Fund Calculator</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
 <div class="layout">
   <div class="card">
     <h1>PSX Daily Price Tracker</h1>
@@ -114,7 +145,7 @@
   </div>
 
   <div class="sidebar">
-    <div class="sidebar-section">
+    <div class="sidebar-section" id="top-stocks-section">
       <h2>Top PSX Stocks</h2>
       <ul class="stock-list" id="topStocksList">
         <li class="placeholder">Loading...</li>
@@ -211,6 +242,17 @@
 
   loadTopStocks();
   loadRecent();
+
+  // Calculators dropdown toggle
+  document.querySelectorAll('.dropdown > .dropbtn').forEach((b) => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      b.parentElement.classList.toggle('open');
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown.open').forEach((d) => d.classList.remove('open'));
+  });
 </script>
 </body>
 </html>

@@ -24,6 +24,16 @@ body {
 h1 { font-size: 22px; margin-bottom: 4px; }
 p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
 
+.trending-section { margin-bottom: 28px; }
+.trending-section h2 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #f87171;
+  margin: 0 0 12px;
+}
+.trending-section .grid { margin-bottom: 0; }
+
 .filter-bar {
   display: flex;
   flex-wrap: wrap;

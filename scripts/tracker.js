@@ -44,7 +44,7 @@ async function savePrice() {
 btn.addEventListener('click', savePrice);
 input.addEventListener('keydown', (e) => { if (e.key === 'Enter') savePrice(); });
 
-function renderList(el, items, emptyText, { showDownPrice } = {}) {
+function renderList(el, items, emptyText) {
   el.innerHTML = '';
   if (!items || items.length === 0) {
     const li = document.createElement('li');
@@ -55,8 +55,12 @@ function renderList(el, items, emptyText, { showDownPrice } = {}) {
   }
   items.forEach((item) => {
     const li = document.createElement('li');
-    const priceClass = showDownPrice ? 'price down' : 'price';
-    li.innerHTML = `<span class="sym">${item.symbol}</span><span class="${priceClass}">Rs. ${item.price}</span>`;
+    const priceClass = item.direction === 'down' ? 'price down' : item.direction === 'up' ? 'price up' : 'price';
+    li.innerHTML = `
+      <span class="sym">${item.symbol}</span>
+      <span class="${priceClass}">Rs. ${item.price}</span>
+      ${sparklineSvg(item.trend, item.direction, { w: 44, h: 20 })}
+    `;
     li.addEventListener('click', () => {
       input.value = item.symbol;
       input.focus();
@@ -82,7 +86,7 @@ async function loadSuggestions() {
     const res = await fetch('/api/top-stocks');
     const data = await res.json();
     const declining = (data.stocks || []).filter((s) => s.direction === 'down').slice(0, 8);
-    renderList(suggestList, declining, 'No declining stocks right now.', { showDownPrice: true });
+    renderList(suggestList, declining, 'No declining stocks right now.');
   } catch {
     renderList(suggestList, [], 'Could not load suggestions.');
   }

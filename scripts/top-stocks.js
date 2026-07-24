@@ -37,24 +37,8 @@ function badgesFor(stock) {
   return badges.join('');
 }
 
-// Builds a tiny inline SVG line chart from a price trend array.
-// Green if the trend is up, red if down, gray if flat/unknown.
-function sparklineSvg(trend, direction) {
-  const color = direction === 'up' ? '#4ade80' : direction === 'down' ? '#f87171' : '#64748b';
-  if (!trend || trend.length < 2) {
-    return `<svg class="sparkline" width="56" height="24" viewBox="0 0 56 24"><line x1="2" y1="12" x2="54" y2="12" stroke="${color}" stroke-width="2" stroke-linecap="round"/></svg>`;
-  }
-  const min = Math.min(...trend);
-  const max = Math.max(...trend);
-  const range = max - min || 1;
-  const w = 56, h = 24, pad = 3;
-  const points = trend.map((v, i) => {
-    const x = pad + (i / (trend.length - 1)) * (w - pad * 2);
-    const y = h - pad - ((v - min) / range) * (h - pad * 2);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(' ');
-  return `<svg class="sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-}
+// Sparkline rendering now comes from the shared scripts/sparkline.js
+// (see sparklineSvg()), loaded before this file.
 
 function renderStocks(stocks) {
   grid.innerHTML = '';
@@ -110,14 +94,42 @@ const sectorDropdown = sectorBtn.closest('.dropdown');
 wireDropdown(categoryDropdown, categoryBtn, 'category', (v) => { activeCategory = v; }, 'Category');
 wireDropdown(sectorDropdown, sectorBtn, 'sector', (v) => { activeSector = v; }, 'Sector');
 
+function renderTrendingDown(stocks) {
+  const section = document.getElementById('trendingSection');
+  const trendGrid = document.getElementById('trendingGrid');
+  const declining = stocks.filter((s) => s.direction === 'down').slice(0, 8);
+  if (declining.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  trendGrid.innerHTML = declining
+    .map(
+      (item) => `
+      <a class="stock-card" href="/?symbol=${encodeURIComponent(item.symbol)}">
+        <div class="top-row">
+          <div>
+            <span class="sym">${item.symbol}</span>
+            <span class="price">Rs. ${item.price}</span>
+          </div>
+          ${sparklineSvg(item.trend, item.direction)}
+        </div>
+        <div class="badges">${badgesFor(item)}</div>
+      </a>`
+    )
+    .join('');
+}
+
 async function loadTopStocks() {
   try {
     const res = await fetch('/api/top-stocks');
     const data = await res.json();
     allStocks = data.stocks || [];
+    renderTrendingDown(allStocks);
     applyFilters();
   } catch {
     allStocks = [];
+    renderTrendingDown([]);
     applyFilters();
   }
 }

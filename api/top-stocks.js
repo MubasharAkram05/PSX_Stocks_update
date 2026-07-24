@@ -86,15 +86,21 @@ module.exports = async (req, res) => {
     );
     let stocks = curatedResults.filter(Boolean);
 
-    // --- Merge in recently-saved symbols not already on the list ---
+    // --- Mark recently-saved symbols, and add any not already on the list ---
     try {
       const curatedSymbols = new Set(STOCKS.map((s) => s.symbol));
       const recentRes = await pool.query(
         `SELECT DISTINCT symbol FROM psx_prices ORDER BY symbol LIMIT 50`
       );
-      const extraSymbols = recentRes.rows
-        .map((r) => r.symbol)
-        .filter((sym) => !curatedSymbols.has(sym));
+      const recentSymbols = new Set(recentRes.rows.map((r) => r.symbol));
+
+      // A curated stock that's also been recently saved gets tagged too —
+      // not just symbols missing from the curated list.
+      stocks = stocks.map((s) =>
+        recentSymbols.has(s.symbol) ? { ...s, fromRecent: true } : s
+      );
+
+      const extraSymbols = [...recentSymbols].filter((sym) => !curatedSymbols.has(sym));
 
       if (extraSymbols.length > 0) {
         const extraResults = await Promise.all(

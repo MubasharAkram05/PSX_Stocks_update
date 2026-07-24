@@ -1,5 +1,10 @@
 // api/save-price.js
-// Called by the frontend at POST /api/save-price with { symbol }.
+// Called by the frontend at POST /api/save-price with { symbol, price }.
+// `price` comes from the confirmation popup — the user can edit the
+// fetched value before confirming, so whatever they confirm is what
+// gets saved. If price is missing (e.g. a non-browser caller), it
+// falls back to fetching today's lowest price automatically.
+//
 // Saves the LOWEST price seen for that symbol TODAY. If a row for
 // this symbol + today already exists (saved earlier, manually or by
 // the daily cron job), it's updated only if the new price is lower —
@@ -13,13 +18,27 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { symbol } = req.body || {};
+  const { symbol, price: userPrice } = req.body || {};
   if (!symbol || !symbol.trim()) {
     return res.status(400).json({ error: 'Please provide a stock symbol.' });
   }
 
   try {
-    const result = await getDailyLowPrice(symbol);
+    let result;
+    if (userPrice !== undefined && userPrice !== null && userPrice !== '') {
+      const numPrice = Number(userPrice);
+      if (isNaN(numPrice) || numPrice <= 0) {
+        return res.status(400).json({ error: 'Please provide a valid price.' });
+      }
+      result = {
+        symbol: symbol.trim().toUpperCase(),
+        price: numPrice,
+        date: new Date().toISOString().split('T')[0],
+      };
+    } else {
+      result = await getDailyLowPrice(symbol);
+    }
+
     await ensureSchema();
 
     await pool.query(

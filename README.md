@@ -7,9 +7,17 @@ so far as an **Excel** or **PDF** file with one click.
 ## How it's structured
 
 - `index.html` — the page: symbol input, Save button, Download Excel /
-  Download PDF buttons
+  Download PDF buttons, plus a sidebar with **Top PSX Stocks** and
+  **Recently Added** (both show live prices; click one to fill the
+  input)
+- `api/psx.js` — shared logic for fetching a PSX price (used by both
+  `save-price.js` and `top-stocks.js`)
 - `api/save-price.js` — fetches the PSX price and inserts a row into
   the `psx_prices` table
+- `api/top-stocks.js` — returns current prices for 20 well-known PSX
+  symbols for the sidebar (edit the `TOP_SYMBOLS` list in that file to
+  change which stocks show up)
+- `api/recent.js` — returns the last 15 rows saved, for the sidebar
 - `api/download.js` — reads every saved row and streams back an
   `.xlsx` or `.pdf` file, generated on the spot
 

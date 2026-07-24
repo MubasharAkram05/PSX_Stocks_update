@@ -12,9 +12,17 @@
     color: #e2e8f0;
     display: flex;
     justify-content: center;
-    padding: 60px 20px;
+    padding: 40px 20px;
     margin: 0;
     min-height: 100vh;
+  }
+  .layout {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 820px;
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
   .card {
     background: #1e293b;
@@ -24,7 +32,16 @@
     max-width: 420px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
+  .sidebar {
+    background: #1e293b;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
   h1 { font-size: 20px; margin-bottom: 4px; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin: 0 0 12px; }
   p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
   input {
     width: 100%;
@@ -60,12 +77,30 @@
   .ok { color: #4ade80; }
   .err { color: #f87171; }
   hr { border: none; border-top: 1px solid #334155; margin: 24px 0; }
+
+  .stock-list { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto; }
+  .stock-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .stock-list li:hover { background: #334155; }
+  .stock-list .sym { font-weight: 600; }
+  .stock-list .price { color: #94a3b8; }
+  .stock-list .placeholder { color: #64748b; cursor: default; }
+  .stock-list .placeholder:hover { background: none; }
+  .sidebar-section + .sidebar-section { margin-top: 24px; }
 </style>
 </head>
 <body>
+<div class="layout">
   <div class="card">
     <h1>PSX Daily Price Tracker</h1>
-    <p class="sub">Enter a PSX symbol (e.g. ENGRO, MEBL, LUCK). The current price and today's date will be saved.</p>
+    <p class="sub">Enter a PSX symbol (e.g. ENGRO, MEBL, LUCK), or pick one from the side list. The current price and today's date will be saved.</p>
     <input id="symbol" placeholder="e.g. ENGRO" autocomplete="off" />
     <button id="saveBtn">Save Price</button>
     <div id="status"></div>
@@ -78,10 +113,28 @@
     </div>
   </div>
 
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <h2>Top PSX Stocks</h2>
+      <ul class="stock-list" id="topStocksList">
+        <li class="placeholder">Loading...</li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <h2>Recently Added</h2>
+      <ul class="stock-list" id="recentList">
+        <li class="placeholder">Loading...</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
 <script>
   const input = document.getElementById('symbol');
   const btn = document.getElementById('saveBtn');
   const status = document.getElementById('status');
+  const topStocksList = document.getElementById('topStocksList');
+  const recentList = document.getElementById('recentList');
 
   async function savePrice() {
     const symbol = input.value.trim();
@@ -104,6 +157,7 @@
       status.textContent = `Saved: ${data.symbol} = Rs. ${data.price} on ${data.date}`;
       status.className = 'ok';
       input.value = '';
+      loadRecent(); // refresh the recently-added list
     } catch (err) {
       status.textContent = err.message;
       status.className = 'err';
@@ -114,6 +168,49 @@
 
   btn.addEventListener('click', savePrice);
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') savePrice(); });
+
+  function renderList(el, items, emptyText) {
+    el.innerHTML = '';
+    if (!items || items.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'placeholder';
+      li.textContent = emptyText;
+      el.appendChild(li);
+      return;
+    }
+    items.forEach((item) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="sym">${item.symbol}</span><span class="price">Rs. ${item.price}</span>`;
+      li.addEventListener('click', () => {
+        input.value = item.symbol;
+        input.focus();
+      });
+      el.appendChild(li);
+    });
+  }
+
+  async function loadTopStocks() {
+    try {
+      const res = await fetch('/api/top-stocks');
+      const data = await res.json();
+      renderList(topStocksList, data.stocks, 'Could not load top stocks.');
+    } catch {
+      renderList(topStocksList, [], 'Could not load top stocks.');
+    }
+  }
+
+  async function loadRecent() {
+    try {
+      const res = await fetch('/api/recent');
+      const data = await res.json();
+      renderList(recentList, data.recent, 'Nothing saved yet.');
+    } catch {
+      renderList(recentList, [], 'Nothing saved yet.');
+    }
+  }
+
+  loadTopStocks();
+  loadRecent();
 </script>
 </body>
 </html>

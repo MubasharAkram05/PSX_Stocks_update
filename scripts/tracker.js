@@ -1,6 +1,6 @@
 // scripts/tracker.js
 // Logic specific to index.html: saving a price and the Recently
-// Added list. The market index now lives in the shared nav bar
+// Added list. The market index lives in the shared nav bar
 // (see scripts/nav.js), since it shows on every page.
 
 const input = document.getElementById('symbol');
@@ -12,24 +12,11 @@ const downloadTo = document.getElementById('downloadTo');
 const downloadExcelBtn = document.getElementById('downloadExcelBtn');
 const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
-let saveConfirmMessage = 'Save this price to the tracker?';
-
-async function loadConfirmMessage() {
-  try {
-    const res = await fetch('/api/settings');
-    const data = await res.json();
-    if (data.save_confirm_message) saveConfirmMessage = data.save_confirm_message;
-  } catch {
-    // Keep the default message if settings can't be loaded
-  }
-}
-
 async function savePrice() {
   const symbol = input.value.trim();
   if (!symbol) return;
 
-  const message = saveConfirmMessage.replace('{symbol}', symbol.toUpperCase());
-  if (!confirm(message)) return;
+  if (!confirm(`Save this price for ${symbol.toUpperCase()}?`)) return;
 
   btn.disabled = true;
   status.textContent = 'Fetching price and saving...';
@@ -38,20 +25,10 @@ async function savePrice() {
   try {
     const res = await fetch('/api/save-price', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-admin-token': sessionStorage.getItem('adminToken') || '',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ symbol }),
     });
     const data = await res.json();
-
-    if (res.status === 401) {
-      alert(data.error || 'Only admin can add stock prices.');
-      status.textContent = data.error || 'Only admin can add stock prices.';
-      status.className = 'err';
-      return;
-    }
 
     if (!res.ok) throw new Error(data.error || 'Something went wrong.');
 
@@ -121,12 +98,4 @@ function updateDownloadLinks() {
 downloadFrom.addEventListener('change', updateDownloadLinks);
 downloadTo.addEventListener('change', updateDownloadLinks);
 
-// If arriving from the Top Stocks page (e.g. /?symbol=ENGRO), prefill the input
-const params = new URLSearchParams(window.location.search);
-const prefill = params.get('symbol');
-if (prefill) {
-  input.value = prefill.toUpperCase();
-}
-
 loadRecent();
-loadConfirmMessage();

@@ -1,6 +1,6 @@
 /* styles/nav.css
-   Shared top navigation bar — used on every page (index, top-stocks,
-   stock-profit-calculator, mutual-fund-calculator). Keeping it in one
+   Shared top navigation bar — used on every page (index and the two
+   calculators).
    file means the nav only needs to be updated in one place. */
 
 .topnav {

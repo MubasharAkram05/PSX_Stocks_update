@@ -2,51 +2,21 @@
 
 Type a PSX symbol → it saves today's LOWEST price into a database —
 one row per stock per day, never a duplicate. Prices also save
-automatically once a day via a cron job. Browse everything you've
-saved with sparkline trends, read related news, and download it all
-as Excel or PDF.
-
-## Admin protection
-
-Adding stock prices and managing the Top Stocks list now requires an
-admin login — random visitors to your public Vercel URL can't add
-junk data.
-
-1. In Vercel → your project → **Settings → Environment Variables**,
-   add `ADMIN_PASSWORD` = whatever password you want (pick something
-   you'll remember — this is a simple shared password, not a full user
-   account system).
-2. Redeploy after adding it.
-3. Open `/admin.html` on your site, log in with that password.
-4. From there: **add** stocks (with sector + High Dividend/Future
-   Growth tags), **edit** any existing stock's tags (✎ button),
-   **remove** stocks, and **reorder** (↑/↓) — full control over what
-   shows on the Top Stocks page and how it's categorized.
-5. The login is stored in the browser's session storage — once logged
-   in (on Admin or anywhere else in that browser tab), the **Save
-   Price** button on the home page will work too. If someone who
-   *isn't* logged in tries to save a price, they get a popup: "Only
-   admin can add stock prices."
-
-Note: `api/cron-daily-save.js` (the automatic daily save) isn't
-affected by this — it runs on the server directly, not through the
-public API, so it keeps working regardless of anyone's login state.
+automatically once a day via a cron job. Download everything as Excel
+or PDF, optionally filtered to a date range.
 
 ## How saving works (no duplicates, lowest price wins)
 
 - Each stock gets **exactly one row per calendar date**, enforced by
   a database uniqueness constraint on `(symbol, date)`.
-- When you save a symbol, the code fetches **today's lowest intraday
-  price** (not just the current price) — from PSX's intraday tick
-  data, falling back to the end-of-day close if that's unavailable.
-- If you (or the daily cron job) save the same symbol again the same
-  day, the stored price is only replaced if the new one is **lower**.
-  Example: save FFC at 535, then 538, then 533 the same day — the row
-  stays at 533. A higher re-save never overwrites a lower one.
-- `lib/db.js` → `ensureSchema()` handles this: creates the table if
-  needed, de-duplicates any old rows from before this rule existed
-  (keeping the lowest price), and adds the `(symbol, date)` unique
-  constraint.
+- Saving fetches **today's lowest intraday price** (not just the
+  current price) from PSX's intraday tick data, falling back to the
+  end-of-day close if that's unavailable.
+- A confirm popup ("Save this price for SYMBOL?") appears before
+  saving.
+- Re-saving the same symbol later the same day only replaces the
+  stored price if the new one is **lower** — never a duplicate, never
+  a higher price overwriting a lower one.
 
 ## Automatic daily saving
 
@@ -59,30 +29,14 @@ it via Vercel Cron:
 ```
 
 That's 10:45 UTC (≈15:45 PKT), shortly after PSX's market close,
-Monday–Friday. Cron jobs only run once the project is deployed to
-Vercel — check your Vercel plan's current Cron Jobs limits/availability
-in their docs if it doesn't appear to fire.
+Monday–Friday.
 
 ## How it's structured
 
-**Pages** (each with its own HTML, CSS, and JS file):
+**Pages:**
 - `index.html` / `styles/tracker.css` / `scripts/tracker.js` — Save
-  Price card (admin-only), Recently Added on the left (narrower) on
-  wider screens.
-- `top-stocks.html` / `styles/top-stocks.css` / `scripts/top-stocks.js`
-  — the admin-curated stock list. Two dropdowns: **Category** (All,
-  Cheap, Higher Priced, High Dividend, Future Growth) and **Sector**
-  (Petroleum, Fertilizer, Medicine, Cement, Tech, Power, Chemical,
-  Automobile). Each card has a sparkline; click a card for a popup
-  with full details (price, sector, tags, date) and a link to the
-  tracker.
-- `admin.html` / `styles/admin.css` / `scripts/admin.js` — admin login,
-  then add (with sector/dividend/growth tags), edit, remove, and
-  reorder the Top Stocks list.
-- `news.html` / `styles/news.css` / `scripts/news.js` — company
-  announcements only (board meetings, dividends, book closures,
-  AGM/EOGM, bonus/right issues) — general market news is filtered
-  out. Search box plus a Dividend/Book Closure-only filter.
+  Price card, Recently Added on the left on wider screens, download
+  buttons with an optional date-range filter.
 - `stock-profit-calculator.html` / `styles/stock-profit-calculator.css`
   / `scripts/stock-profit-calculator.js`
 - `mutual-fund-calculator.html` / `styles/mutual-fund-calculator.css`
@@ -91,61 +45,31 @@ in their docs if it doesn't appear to fire.
 **Shared across every page:**
 - `styles/nav.css` / `scripts/nav.js` — nav bar, Calculators dropdown,
   and the KSE-100 index shown in the header
-- `scripts/sparkline.js` — shared sparkline SVG builder
+- `scripts/sparkline.js` — sparkline SVG builder for Recently Added
 
-**Backend (Vercel serverless functions, one job per file):**
+**Backend (Vercel serverless functions):**
 
-`lib/db.js`, `lib/psx.js`, and `lib/require-admin.js` are shared helper
-modules, deliberately kept **outside** `/api` — Vercel's Hobby plan
-caps you at 12 serverless functions per deployment, and it treats
-*every* file directly inside `/api` as one, even plain helper modules
-with no route of their own. Keeping helpers in `/lib` and importing
-them (`require('../lib/db')`) keeps the actual endpoint count at 11.
-- `lib/psx.js` — `getStockPrice()` (latest EOD price),
-  `getStockPriceWithTrend()` (+ sparkline history),
-  `getDailyLowPrice()` (today's lowest intraday price)
-- `lib/require-admin.js` — shared admin-token check
-- `api/admin-login.js` — checks the password against `ADMIN_PASSWORD`
-- `api/admin-stocks.js` — admin-only add/remove/reorder for the Top
-  Stocks list (`stock_list` table)
-- `api/save-price.js` — admin-only; upserts today's low price for a symbol
-- `api/cron-daily-save.js` — same upsert, run automatically for every symbol on the stock list
-- `api/top-stocks.js` — the admin-managed stock list, tagged by sector/dividend/growth/price/trend
+`lib/db.js` and `lib/psx.js` are shared helper modules, deliberately
+kept **outside** `/api` — Vercel's Hobby plan caps you at 12 serverless
+functions per deployment, and treats every file directly inside `/api`
+as one, even plain helpers with no route of their own.
+
+- `lib/psx.js` — `getStockPrice()`, `getStockPriceWithTrend()` (+
+  sparkline history), `getDailyLowPrice()` (today's lowest intraday
+  price)
+- `lib/db.js` — shared database connection + schema/migration logic
+- `api/save-price.js` — upserts today's low price for a symbol (open to anyone)
+- `api/cron-daily-save.js` — same upsert, run automatically for every saved symbol
 - `api/recent.js` — the last 15 distinct symbols saved, with live trend
 - `api/psx-index.js` — best-effort KSE-100 index level for the header
-- `api/news.js` — PSX-related news (Google News RSS); supports `?q=` search and `&dividend=true`
-- `api/download.js` — Excel/PDF export of everything saved
-- `lib/db.js` — shared database connection + schema/migration logic
-  (creates both `psx_prices` and `stock_list`, one-time-seeds
-  `stock_list` from any symbols already saved on an existing deployment)
+- `api/download.js` — Excel/PDF export, optional `?from=&to=` date filter
 
 ## Honesty notes
 
-- **Sector/dividend/growth tags** (`SECTOR_META` in `api/top-stocks.js`)
-  are a static, hand-picked lookup for known symbols — not live
-  financial data. Unlisted symbols still show up, just untagged.
-- **"Cheap"/"Higher Priced" and trend direction ARE** computed live.
 - **KSE-100 header index** is best-effort against an unofficial PSX
   endpoint; shows nothing if that lookup fails, rather than guessing.
-- **News** comes from Google News' public feed, not PSX's own
-  (rights-restricted) announcements feed.
-
-## Save confirmation popup
-
-Before saving a price, the home page now shows a `confirm()` popup.
-The message is customizable — go to the Admin page → **Save
-Confirmation Popup** card, edit the text (use `{symbol}` to insert
-the stock symbol, e.g. "Save this price for {symbol}?"), and Save.
-It's stored in the database (`app_settings` table) and applies
-immediately for everyone.
-
-## Download and remove data by date range
-
-- **Downloads** (Excel/PDF, home page): optional From/To date fields
-  above the download buttons. Leave both blank to download everything.
-- **Remove data** (Admin page only, under "Remove Saved Data"): same
-  From/To range, but deletes those rows permanently. Requires typing
-  both dates and confirming a popup warning — this cannot be undone.
+- Prices come from `dps.psx.com.pk`, PSX's own (unofficial) public
+  data portal — not a licensed data feed.
 
 ## Setup
 

@@ -7,15 +7,10 @@
 
 const { pool, ensureSchema } = require('../lib/db');
 const { getDailyLowPrice } = require('../lib/psx');
-const { isAdmin } = require('../lib/require-admin');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  if (!isAdmin(req)) {
-    return res.status(401).json({ error: 'Only admin can add stock prices.' });
   }
 
   const { symbol } = req.body || {};

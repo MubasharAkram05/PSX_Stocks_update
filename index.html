@@ -45,10 +45,14 @@
     <div id="status"></div>
 
     <hr />
-    <p class="sub" style="margin-bottom:12px;">Download everything saved so far:</p>
+    <p class="sub" style="margin-bottom:12px;">Download saved prices (leave dates blank for everything):</p>
+    <div class="date-filter">
+      <label>From<input type="date" id="downloadFrom" /></label>
+      <label>To<input type="date" id="downloadTo" /></label>
+    </div>
     <div class="downloads">
-      <a class="btn" href="/api/download?format=excel" download>Download Excel</a>
-      <a class="btn" href="/api/download?format=pdf" download>Download PDF</a>
+      <a class="btn" id="downloadExcelBtn" href="/api/download?format=excel" download>Download Excel</a>
+      <a class="btn" id="downloadPdfBtn" href="/api/download?format=pdf" download>Download PDF</a>
     </div>
   </div>
 

@@ -123,6 +123,23 @@ in their docs if it doesn't appear to fire.
 - **News** comes from Google News' public feed, not PSX's own
   (rights-restricted) announcements feed.
 
+## Save confirmation popup
+
+Before saving a price, the home page now shows a `confirm()` popup.
+The message is customizable — go to the Admin page → **Save
+Confirmation Popup** card, edit the text (use `{symbol}` to insert
+the stock symbol, e.g. "Save this price for {symbol}?"), and Save.
+It's stored in the database (`app_settings` table) and applies
+immediately for everyone.
+
+## Download and remove data by date range
+
+- **Downloads** (Excel/PDF, home page): optional From/To date fields
+  above the download buttons. Leave both blank to download everything.
+- **Remove data** (Admin page only, under "Remove Saved Data"): same
+  From/To range, but deletes those rows permanently. Requires typing
+  both dates and confirming a popup warning — this cannot be undone.
+
 ## Setup
 
 ### 1. Add a Postgres database in Vercel

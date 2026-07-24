@@ -2,7 +2,7 @@
 // Called from the page via GET /api/download?format=excel or ?format=pdf
 // Reads every saved row from Vercel Postgres and streams back a file.
 
-const { sql } = require('./db');
+const { pool } = require('./db');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 
@@ -11,10 +11,9 @@ module.exports = async (req, res) => {
 
   let rows;
   try {
-    const result = await sql`
-      SELECT date, symbol, price FROM psx_prices
-      ORDER BY date DESC, id DESC
-    `;
+    const result = await pool.query(
+      `SELECT date, symbol, price FROM psx_prices ORDER BY date DESC, id DESC`
+    );
     rows = result.rows;
   } catch (err) {
     console.error(err);

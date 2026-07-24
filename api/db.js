@@ -1,16 +1,16 @@
 // api/db.js
-// Shared database connection.
-// The Neon integration on Vercel provides the connection string as
-// DATABASE_URL (not POSTGRES_URL, which @vercel/postgres expects by
-// default) — so we point the pool at it explicitly here.
+// Shared database connection using the standard "pg" library.
+// Neon (which powers Vercel's Postgres storage) provides the
+// connection string as DATABASE_URL. Neon requires SSL.
 
-const { createPool } = require('@vercel/postgres');
+const { Pool } = require('pg');
 
-const pool = createPool({
+const pool = new Pool({
   connectionString:
     process.env.DATABASE_URL ||
     process.env.POSTGRES_URL ||
     process.env.DATABASE_URL_UNPOOLED,
+  ssl: { rejectUnauthorized: false },
 });
 
-module.exports = { sql: pool.sql };
+module.exports = { pool };

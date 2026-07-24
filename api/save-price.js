@@ -4,7 +4,7 @@
 // "psx_prices" table in Vercel Postgres.
 
 const axios = require('axios');
-const { sql } = require('./db');
+const { pool } = require('./db');
 
 // -------------------------------------------------------
 // 1. Fetch the current/latest price for a PSX symbol
@@ -55,7 +55,7 @@ async function getStockPrice(symbol) {
 // 2. Make sure the table exists, then insert the row
 // -------------------------------------------------------
 async function saveToDatabase({ date, symbol, price }) {
-  await sql`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS psx_prices (
       id SERIAL PRIMARY KEY,
       date DATE NOT NULL,
@@ -63,11 +63,11 @@ async function saveToDatabase({ date, symbol, price }) {
       price NUMERIC NOT NULL,
       created_at TIMESTAMP DEFAULT NOW()
     )
-  `;
-  await sql`
-    INSERT INTO psx_prices (date, symbol, price)
-    VALUES (${date}, ${symbol}, ${price})
-  `;
+  `);
+  await pool.query(
+    `INSERT INTO psx_prices (date, symbol, price) VALUES ($1, $2, $3)`,
+    [date, symbol, price]
+  );
 }
 
 // -------------------------------------------------------

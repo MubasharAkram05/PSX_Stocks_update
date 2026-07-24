@@ -3,9 +3,9 @@
   "version": "2.0.0",
   "description": "Save daily PSX stock prices to a database and download as Excel or PDF - deployed on Vercel",
   "dependencies": {
-    "@vercel/postgres": "^0.10.0",
     "axios": "^1.7.7",
     "exceljs": "^4.4.0",
-    "pdfkit": "^0.15.0"
+    "pdfkit": "^0.15.0",
+    "pg": "^8.13.0"
   }
 }

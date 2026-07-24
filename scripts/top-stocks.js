@@ -44,7 +44,7 @@ function renderStocks(stocks) {
     const div = document.createElement('div');
     div.className = 'placeholder';
     div.textContent = allStocks.length === 0
-      ? "You haven't saved any stocks yet — save one from the home page to see it here."
+      ? 'No stocks on the list yet — an admin can add some from the Admin page.'
       : 'No stocks match this filter.';
     grid.appendChild(div);
     return;

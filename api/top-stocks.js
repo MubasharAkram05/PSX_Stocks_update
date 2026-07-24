@@ -1,9 +1,8 @@
 // api/top-stocks.js
 // Called by the frontend at GET /api/top-stocks
-// Returns EVERY symbol that's ever been saved (via manual Save Price
-// or the daily cron job) — this list no longer fetches an independent
-// curated set of stocks from PSX. Every stock shown here is, by
-// definition, something you've added.
+// Returns the stock list as managed by the admin (add/remove/reorder
+// via admin.html + api/admin-stocks.js) — NOT an independent fetch
+// from PSX, and no longer tied directly to price-save history.
 //
 // A static metadata table (SECTOR_META below) enriches known symbols
 // with sector / dividend / growth tags purely for the filter dropdowns
@@ -11,7 +10,7 @@
 // this table just get sector: 'other' and no dividend/growth tag, so
 // they still show up (with fewer filter matches).
 
-const { pool } = require('./db');
+const { pool, ensureSchema } = require('./db');
 const { getStockPriceWithTrend } = require('./psx');
 
 const SECTOR_META = {
@@ -58,7 +57,8 @@ const SECTOR_META = {
 
 module.exports = async (req, res) => {
   try {
-    const dbRes = await pool.query(`SELECT DISTINCT symbol FROM psx_prices ORDER BY symbol`);
+    await ensureSchema();
+    const dbRes = await pool.query(`SELECT symbol FROM stock_list ORDER BY sort_order ASC`);
     const symbols = dbRes.rows.map((r) => r.symbol);
 
     if (symbols.length === 0) {

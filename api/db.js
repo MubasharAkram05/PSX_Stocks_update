@@ -49,6 +49,29 @@ async function ensureSchema() {
   } catch (err) {
     // Already exists — fine, ignore.
   }
+
+  // --- Admin-managed stock list (what shows on the Top Stocks page) ---
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS stock_list (
+      symbol TEXT PRIMARY KEY,
+      sort_order INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+
+  // One-time seed: if the admin list is empty but prices have already
+  // been saved before (e.g. an existing deployment), carry those
+  // symbols over so the Top Stocks page doesn't go blank. After this,
+  // only the admin adds/removes symbols from the list.
+  const countRes = await pool.query(`SELECT COUNT(*) FROM stock_list`);
+  if (Number(countRes.rows[0].count) === 0) {
+    await pool.query(`
+      INSERT INTO stock_list (symbol, sort_order)
+      SELECT symbol, ROW_NUMBER() OVER (ORDER BY symbol) - 1
+      FROM (SELECT DISTINCT symbol FROM psx_prices) s
+      ON CONFLICT (symbol) DO NOTHING
+    `);
+  }
 }
 
 module.exports = { pool, ensureSchema };

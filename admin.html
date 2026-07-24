@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — PSX Tools</title>
+<link rel="stylesheet" href="/styles/nav.css" />
+<link rel="stylesheet" href="/styles/admin.css" />
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="topnav-brand">PSX Tools</a>
+    <span class="topnav-index" id="topnavIndex"></span>
+    <div class="topnav-links">
+      <a href="/">Home</a>
+      <a href="/top-stocks.html">Top Stocks</a>
+      <a href="/news.html">News</a>
+      <div class="dropdown">
+        <button class="dropbtn" type="button">Calculators ▾</button>
+        <div class="dropdown-content">
+          <a href="/stock-profit-calculator.html">Stock Profit Calculator</a>
+          <a href="/mutual-fund-calculator.html">Mutual Fund Calculator</a>
+        </div>
+      </div>
+      <a href="/admin.html" class="active">Admin</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="card" id="loginCard">
+    <h1>Admin Login</h1>
+    <p class="sub">Only the admin can add stock prices or manage the Top Stocks list.</p>
+    <input id="passwordInput" type="password" placeholder="Admin password" autocomplete="off" />
+    <button id="loginBtn">Log In</button>
+    <div id="loginStatus" class="status"></div>
+  </div>
+
+  <div class="card" id="adminPanel" style="display:none;">
+    <div class="panel-header">
+      <h1>Manage Stocks</h1>
+      <button id="logoutBtn" class="logout-btn">Log Out</button>
+    </div>
+    <p class="sub">Add, remove, and reorder the stocks shown on the Top Stocks page.</p>
+
+    <div class="add-row">
+      <input id="newSymbol" placeholder="e.g. ENGRO" autocomplete="off" />
+      <button id="addBtn">Add Stock</button>
+    </div>
+    <div id="addStatus" class="status"></div>
+
+    <ul class="manage-list" id="manageList">
+      <li class="placeholder">Loading...</li>
+    </ul>
+  </div>
+
+</div>
+
+<script src="/scripts/nav.js"></script>
+<script src="/scripts/admin.js"></script>
+</body>
+</html>

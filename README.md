@@ -6,6 +6,30 @@ automatically once a day via a cron job. Browse everything you've
 saved with sparkline trends, read related news, and download it all
 as Excel or PDF.
 
+## Admin protection
+
+Adding stock prices and managing the Top Stocks list now requires an
+admin login — random visitors to your public Vercel URL can't add
+junk data.
+
+1. In Vercel → your project → **Settings → Environment Variables**,
+   add `ADMIN_PASSWORD` = whatever password you want (pick something
+   you'll remember — this is a simple shared password, not a full user
+   account system).
+2. Redeploy after adding it.
+3. Open `/admin.html` on your site, log in with that password.
+4. From there: **add**, **remove**, and **reorder** (↑/↓) the stocks
+   shown on the Top Stocks page.
+5. The login is stored in the browser's session storage — once logged
+   in (on Admin or anywhere else in that browser tab), the **Save
+   Price** button on the home page will work too. If someone who
+   *isn't* logged in tries to save a price, they get a popup: "Only
+   admin can add stock prices."
+
+Note: `api/cron-daily-save.js` (the automatic daily save) isn't
+affected by this — it runs on the server directly, not through the
+public API, so it keeps working regardless of anyone's login state.
+
 ## How saving works (no duplicates, lowest price wins)
 
 - Each stock gets **exactly one row per calendar date**, enforced by
@@ -41,13 +65,16 @@ in their docs if it doesn't appear to fire.
 
 **Pages** (each with its own HTML, CSS, and JS file):
 - `index.html` / `styles/tracker.css` / `scripts/tracker.js` — Save
-  Price card, with Recently Added on the left on wider screens.
+  Price card (admin-only), Recently Added on the left (narrower) on
+  wider screens.
 - `top-stocks.html` / `styles/top-stocks.css` / `scripts/top-stocks.js`
-  — **every symbol you've saved** (no independent curated fetch list
-  anymore). Two dropdowns: **Category** (All, Cheap, Higher Priced,
-  High Dividend, Future Growth) and **Sector** (Petroleum, Fertilizer,
-  Medicine, Cement, Tech, Power, Chemical, Automobile). Each card has
-  a sparkline — green if trending up, red if down.
+  — the admin-curated stock list (managed via admin.html). Two
+  dropdowns: **Category** (All, Cheap, Higher Priced, High Dividend,
+  Future Growth) and **Sector** (Petroleum, Fertilizer, Medicine,
+  Cement, Tech, Power, Chemical, Automobile). Each card has a
+  sparkline — green if trending up, red if down.
+- `admin.html` / `styles/admin.css` / `scripts/admin.js` — admin login,
+  then add/remove/reorder the Top Stocks list.
 - `news.html` / `styles/news.css` / `scripts/news.js` — news about
   PSX-listed companies, with search and a Dividend/AGM filter.
 - `stock-profit-calculator.html` / `styles/stock-profit-calculator.css`
@@ -64,14 +91,20 @@ in their docs if it doesn't appear to fire.
 - `api/psx.js` — `getStockPrice()` (latest EOD price),
   `getStockPriceWithTrend()` (+ sparkline history),
   `getDailyLowPrice()` (today's lowest intraday price)
-- `api/save-price.js` — upserts today's low price for a symbol (manual save)
-- `api/cron-daily-save.js` — same upsert, run automatically for every saved symbol
-- `api/top-stocks.js` — every saved symbol, tagged by sector/dividend/growth/price/trend
+- `api/require-admin.js` — shared admin-token check
+- `api/admin-login.js` — checks the password against `ADMIN_PASSWORD`
+- `api/admin-stocks.js` — admin-only add/remove/reorder for the Top
+  Stocks list (`stock_list` table)
+- `api/save-price.js` — admin-only; upserts today's low price for a symbol
+- `api/cron-daily-save.js` — same upsert, run automatically for every symbol on the stock list
+- `api/top-stocks.js` — the admin-managed stock list, tagged by sector/dividend/growth/price/trend
 - `api/recent.js` — the last 15 distinct symbols saved, with live trend
 - `api/psx-index.js` — best-effort KSE-100 index level for the header
 - `api/news.js` — PSX-related news (Google News RSS); supports `?q=` search and `&dividend=true`
 - `api/download.js` — Excel/PDF export of everything saved
 - `api/db.js` — shared database connection + schema/migration logic
+  (creates both `psx_prices` and `stock_list`, one-time-seeds
+  `stock_list` from any symbols already saved on an existing deployment)
 
 ## Honesty notes
 

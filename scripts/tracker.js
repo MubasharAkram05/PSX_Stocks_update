@@ -19,10 +19,20 @@ async function savePrice() {
   try {
     const res = await fetch('/api/save-price', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-token': sessionStorage.getItem('adminToken') || '',
+      },
       body: JSON.stringify({ symbol }),
     });
     const data = await res.json();
+
+    if (res.status === 401) {
+      alert(data.error || 'Only admin can add stock prices.');
+      status.textContent = data.error || 'Only admin can add stock prices.';
+      status.className = 'err';
+      return;
+    }
 
     if (!res.ok) throw new Error(data.error || 'Something went wrong.');
 

@@ -7,29 +7,10 @@ const input = document.getElementById('symbol');
 const btn = document.getElementById('saveBtn');
 const status = document.getElementById('status');
 const recentList = document.getElementById('recentList');
-const downloadFrom = document.getElementById('downloadFrom');
-const downloadTo = document.getElementById('downloadTo');
-const downloadExcelBtn = document.getElementById('downloadExcelBtn');
-const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-
-let saveConfirmMessage = 'Save this price to the tracker?';
-
-async function loadConfirmMessage() {
-  try {
-    const res = await fetch('/api/settings');
-    const data = await res.json();
-    if (data.save_confirm_message) saveConfirmMessage = data.save_confirm_message;
-  } catch {
-    // Keep the default message if settings can't be loaded
-  }
-}
 
 async function savePrice() {
   const symbol = input.value.trim();
   if (!symbol) return;
-
-  const message = saveConfirmMessage.replace('{symbol}', symbol.toUpperCase());
-  if (!confirm(message)) return;
 
   btn.disabled = true;
   status.textContent = 'Fetching price and saving...';
@@ -105,22 +86,6 @@ async function loadRecent() {
   }
 }
 
-function updateDownloadLinks() {
-  const params = new URLSearchParams();
-  if (downloadFrom.value) params.set('from', downloadFrom.value);
-  if (downloadTo.value) params.set('to', downloadTo.value);
-
-  const excelParams = new URLSearchParams(params);
-  excelParams.set('format', 'excel');
-  downloadExcelBtn.href = `/api/download?${excelParams.toString()}`;
-
-  const pdfParams = new URLSearchParams(params);
-  pdfParams.set('format', 'pdf');
-  downloadPdfBtn.href = `/api/download?${pdfParams.toString()}`;
-}
-downloadFrom.addEventListener('change', updateDownloadLinks);
-downloadTo.addEventListener('change', updateDownloadLinks);
-
 // If arriving from the Top Stocks page (e.g. /?symbol=ENGRO), prefill the input
 const params = new URLSearchParams(window.location.search);
 const prefill = params.get('symbol');
@@ -129,4 +94,3 @@ if (prefill) {
 }
 
 loadRecent();
-loadConfirmMessage();

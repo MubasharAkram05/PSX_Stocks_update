@@ -79,14 +79,6 @@ async function ensureSchema() {
       ON CONFLICT (symbol) DO NOTHING
     `);
   }
-
-  // --- Admin-customizable app settings (key/value) ---
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS app_settings (
-      key TEXT PRIMARY KEY,
-      value TEXT NOT NULL
-    )
-  `);
 }
 
 module.exports = { pool, ensureSchema };

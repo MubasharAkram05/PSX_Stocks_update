@@ -4,8 +4,6 @@
 
 const loginCard = document.getElementById('loginCard');
 const adminPanel = document.getElementById('adminPanel');
-const settingsPanel = document.getElementById('settingsPanel');
-const removePanel = document.getElementById('removePanel');
 const passwordInput = document.getElementById('passwordInput');
 const loginBtn = document.getElementById('loginBtn');
 const loginStatus = document.getElementById('loginStatus');
@@ -17,13 +15,6 @@ const newGrowthCheck = document.getElementById('newGrowth');
 const addBtn = document.getElementById('addBtn');
 const addStatus = document.getElementById('addStatus');
 const manageList = document.getElementById('manageList');
-const confirmMessageInput = document.getElementById('confirmMessageInput');
-const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-const settingsStatus = document.getElementById('settingsStatus');
-const removeFrom = document.getElementById('removeFrom');
-const removeTo = document.getElementById('removeTo');
-const removeBtn = document.getElementById('removeBtn');
-const removeStatus = document.getElementById('removeStatus');
 
 const SECTOR_LABELS = {
   petroleum: 'Petroleum', fertilizer: 'Fertilizer', pharma: 'Medicine',
@@ -39,17 +30,12 @@ function getToken() {
 function showPanel() {
   loginCard.style.display = 'none';
   adminPanel.style.display = 'block';
-  settingsPanel.style.display = 'block';
-  removePanel.style.display = 'block';
   loadStocks();
-  loadSettings();
 }
 
 function showLogin(message) {
   loginCard.style.display = 'block';
   adminPanel.style.display = 'none';
-  settingsPanel.style.display = 'none';
-  removePanel.style.display = 'none';
   if (message) {
     loginStatus.textContent = message;
     loginStatus.className = 'status err';
@@ -245,70 +231,6 @@ async function reorder(symbol, direction) {
     alert(err.message);
   }
 }
-
-// --- Save confirmation message setting ---
-async function loadSettings() {
-  try {
-    const res = await fetch('/api/settings');
-    const data = await res.json();
-    confirmMessageInput.value = data.save_confirm_message || '';
-  } catch {
-    // leave input blank if it can't load
-  }
-}
-
-async function saveSettings() {
-  const message = confirmMessageInput.value.trim();
-  if (!message) return;
-
-  saveSettingsBtn.disabled = true;
-  settingsStatus.textContent = 'Saving...';
-  settingsStatus.className = 'status';
-
-  try {
-    await adminFetch('/api/settings', {
-      method: 'POST',
-      body: JSON.stringify({ save_confirm_message: message }),
-    });
-    settingsStatus.textContent = 'Saved.';
-  } catch (err) {
-    settingsStatus.textContent = err.message;
-    settingsStatus.className = 'status err';
-  } finally {
-    saveSettingsBtn.disabled = false;
-  }
-}
-saveSettingsBtn.addEventListener('click', saveSettings);
-
-// --- Remove saved data in a date range ---
-async function removeData() {
-  const from = removeFrom.value;
-  const to = removeTo.value;
-  if (!from || !to) {
-    removeStatus.textContent = 'Pick both a From and To date.';
-    removeStatus.className = 'status err';
-    return;
-  }
-  if (!confirm(`Delete all saved prices from ${from} to ${to}? This cannot be undone.`)) return;
-
-  removeBtn.disabled = true;
-  removeStatus.textContent = 'Deleting...';
-  removeStatus.className = 'status';
-
-  try {
-    const data = await adminFetch('/api/admin-delete-data', {
-      method: 'DELETE',
-      body: JSON.stringify({ from, to }),
-    });
-    removeStatus.textContent = `Deleted ${data.deleted} row(s).`;
-  } catch (err) {
-    removeStatus.textContent = err.message;
-    removeStatus.className = 'status err';
-  } finally {
-    removeBtn.disabled = false;
-  }
-}
-removeBtn.addEventListener('click', removeData);
 
 // If already logged in this browser session, skip straight to the panel
 if (getToken()) {

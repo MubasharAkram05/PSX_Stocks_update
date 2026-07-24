@@ -1,8 +1,6 @@
 // api/download.js
 // Called from the page via GET /api/download?format=excel or ?format=pdf
-// Optional date range filter: &from=YYYY-MM-DD&to=YYYY-MM-DD
-// Reads saved rows from the database (filtered by date range if given)
-// and streams back a file.
+// Reads every saved row from Vercel Postgres and streams back a file.
 
 const { pool } = require('./db');
 const ExcelJS = require('exceljs');
@@ -10,50 +8,27 @@ const PDFDocument = require('pdfkit');
 
 module.exports = async (req, res) => {
   const format = (req.query.format || 'excel').toLowerCase();
-  const from = req.query.from || null;
-  const to = req.query.to || null;
 
   let rows;
   try {
-    let query = `SELECT date, symbol, price FROM psx_prices`;
-    const params = [];
-    const conditions = [];
-
-    if (from) {
-      params.push(from);
-      conditions.push(`date >= $${params.length}`);
-    }
-    if (to) {
-      params.push(to);
-      conditions.push(`date <= $${params.length}`);
-    }
-    if (conditions.length > 0) {
-      query += ` WHERE ` + conditions.join(' AND ');
-    }
-    query += ` ORDER BY date DESC, id DESC`;
-
-    const result = await pool.query(query, params);
+    const result = await pool.query(
+      `SELECT date, symbol, price FROM psx_prices ORDER BY date DESC, id DESC`
+    );
     rows = result.rows;
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Could not read saved prices: ' + err.message });
   }
 
-  const rangeLabel = from || to ? `${from || 'start'}_to_${to || 'now'}` : 'all';
-
   // ---------------- PDF ----------------
   if (format === 'pdf') {
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="psx-prices-${rangeLabel}.pdf"`);
+    res.setHeader('Content-Disposition', 'attachment; filename="psx-prices.pdf"');
 
     const doc = new PDFDocument({ margin: 40 });
     doc.pipe(res);
 
     doc.fontSize(16).text('PSX Daily Prices', { align: 'center' });
-    if (from || to) {
-      doc.fontSize(10).fillColor('#666').text(`Range: ${from || 'start'} to ${to || 'today'}`, { align: 'center' });
-      doc.fillColor('#000');
-    }
     doc.moveDown();
 
     const colX = { date: 40, symbol: 180, price: 320 };
@@ -104,7 +79,7 @@ module.exports = async (req, res) => {
     'Content-Type',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   );
-  res.setHeader('Content-Disposition', `attachment; filename="psx-prices-${rangeLabel}.xlsx"`);
+  res.setHeader('Content-Disposition', 'attachment; filename="psx-prices.xlsx"');
   await workbook.xlsx.write(res);
   res.end();
 };

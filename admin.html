@@ -74,25 +74,6 @@
     </ul>
   </div>
 
-  <div class="card" id="settingsPanel" style="display:none;">
-    <h1>Save Confirmation Popup</h1>
-    <p class="sub">Customize the message shown before a price is saved. Use <code>{symbol}</code> to insert the stock symbol.</p>
-    <input id="confirmMessageInput" placeholder="e.g. Save this price for {symbol}?" autocomplete="off" />
-    <button id="saveSettingsBtn">Save Message</button>
-    <div id="settingsStatus" class="status"></div>
-  </div>
-
-  <div class="card danger-card" id="removePanel" style="display:none;">
-    <h1>Remove Saved Data</h1>
-    <p class="sub">Permanently deletes saved price rows within a date range. This cannot be undone.</p>
-    <div class="date-filter">
-      <label>From<input type="date" id="removeFrom" /></label>
-      <label>To<input type="date" id="removeTo" /></label>
-    </div>
-    <button id="removeBtn" class="danger-btn">Delete Data in Range</button>
-    <div id="removeStatus" class="status"></div>
-  </div>
-
 </div>
 
 <script src="/scripts/nav.js"></script>

@@ -14,6 +14,7 @@
     <div class="topnav-links">
       <a href="/">Home</a>
       <a href="/top-stocks.html" class="active">Top Stocks</a>
+      <a href="/news.html">News</a>
       <div class="dropdown">
         <button class="dropbtn" type="button">Calculators ▾</button>
         <div class="dropdown-content">
@@ -27,7 +28,20 @@
 
 <div class="page">
   <h1>Top PSX Stocks</h1>
-  <p class="sub">Current prices for 20 well-known, heavily-traded PSX symbols. Click one to save its price to your tracker.</p>
+  <p class="sub">50+ PSX symbols across major sectors, plus anything you've recently saved. Click a stock to jump to the tracker with it pre-filled.</p>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="recent">Recently Added</button>
+    <button class="filter-btn" data-filter="cheap">Cheap</button>
+    <button class="filter-btn" data-filter="higher">Higher Priced</button>
+    <button class="filter-btn" data-filter="dividend">High Dividend</button>
+    <button class="filter-btn" data-filter="growth">Future Growth</button>
+    <button class="filter-btn" data-filter="petroleum">Petroleum</button>
+    <button class="filter-btn" data-filter="fertilizer">Fertilizer</button>
+    <button class="filter-btn" data-filter="pharma">Medicine</button>
+  </div>
+
   <div class="grid" id="stockGrid">
     <div class="placeholder">Loading...</div>
   </div>

@@ -19,14 +19,33 @@ body {
 
 .page {
   width: 100%;
-  max-width: 720px;
+  max-width: 900px;
 }
 h1 { font-size: 22px; margin-bottom: 4px; }
-p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 28px; font-size: 14px; }
+p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.filter-btn {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  font-size: 12.5px;
+  padding: 7px 13px;
+  border-radius: 100px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.filter-btn:hover { border-color: #4ade80; color: #e2e8f0; }
+.filter-btn.active { background: #4ade80; color: #052e16; border-color: #4ade80; font-weight: 600; }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 14px;
 }
 .stock-card {
@@ -53,10 +72,22 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 28px; font-size: 14px; }
   color: #94a3b8;
   font-size: 14px;
 }
-.stock-card .hint {
-  color: #4ade80;
-  font-size: 12px;
-  margin-top: 8px;
-  display: block;
+.stock-card .badges {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 }
+.badge {
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: #334155;
+  color: #cbd5e1;
+  text-transform: capitalize;
+}
+.badge.recent { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+.badge.dividend { background: rgba(250, 204, 21, 0.15); color: #facc15; }
+.badge.growth { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+
 .placeholder { color: #64748b; grid-column: 1 / -1; }

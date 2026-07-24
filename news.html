@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PSX News</title>
+<link rel="stylesheet" href="/styles/nav.css" />
+<link rel="stylesheet" href="/styles/news.css" />
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="topnav-brand">PSX Tools</a>
+    <div class="topnav-links">
+      <a href="/">Home</a>
+      <a href="/top-stocks.html">Top Stocks</a>
+      <a href="/news.html" class="active">News</a>
+      <div class="dropdown">
+        <button class="dropbtn" type="button">Calculators ▾</button>
+        <div class="dropdown-content">
+          <a href="/stock-profit-calculator.html">Stock Profit Calculator</a>
+          <a href="/mutual-fund-calculator.html">Mutual Fund Calculator</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>PSX &amp; Market News</h1>
+  <p class="sub">Recent news related to PSX-listed companies — earnings, dividend announcements, expansion plans, and stories that could move stock prices. Pulled from general news sources, not PSX's official feed.</p>
+  <ul class="news-list" id="newsList">
+    <li class="placeholder">Loading...</li>
+  </ul>
+</div>
+
+<script src="/scripts/nav.js"></script>
+<script src="/scripts/news.js"></script>
+</body>
+</html>

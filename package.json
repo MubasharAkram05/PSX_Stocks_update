@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^1.7.7",
     "exceljs": "^4.4.0",
+    "fast-xml-parser": "^4.5.0",
     "pdfkit": "^0.15.0",
     "pg": "^8.13.0"
   }

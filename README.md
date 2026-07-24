@@ -10,8 +10,12 @@ so far as an **Excel** or **PDF** file with one click.
 - `index.html` / `styles/tracker.css` / `scripts/tracker.js` — Save
   Price card + Recently Added list
 - `top-stocks.html` / `styles/top-stocks.css` / `scripts/top-stocks.js`
-  — dedicated page listing 20 well-known PSX stocks with live prices;
-  click one to jump to the home page with that symbol pre-filled
+  — 50+ PSX stocks across sectors, plus anything you've recently
+  saved. Filter buttons: All, Recently Added, Cheap, Higher Priced,
+  High Dividend, Future Growth, Petroleum, Fertilizer, Medicine.
+  Click a stock to jump to the home page with it pre-filled.
+- `news.html` / `styles/news.css` / `scripts/news.js` — recent news
+  about PSX-listed companies (earnings, dividends, expansion plans)
 - `stock-profit-calculator.html` / `styles/stock-profit-calculator.css`
   / `scripts/stock-profit-calculator.js`
 - `mutual-fund-calculator.html` / `styles/mutual-fund-calculator.css`
@@ -24,10 +28,21 @@ so far as an **Excel** or **PDF** file with one click.
 **Backend (Vercel serverless functions, one job per file):**
 - `api/psx.js` — fetches a PSX price (shared by save-price and top-stocks)
 - `api/save-price.js` — saves a price to the database
-- `api/top-stocks.js` — returns prices for the Top Stocks page
+- `api/top-stocks.js` — the curated 50+ stock list, merged with
+  recently-saved symbols, tagged by sector/dividend/growth/price
 - `api/recent.js` — returns the Recently Added list
+- `api/news.js` — fetches PSX-related news headlines (Google News RSS,
+  no API key needed)
 - `api/download.js` — generates the Excel/PDF download
 - `api/db.js` — shared database connection
+
+**A note on the curation:** PSX doesn't publish a "top by dividend
+yield" or "top growth stocks" API, so the sector/dividend/growth tags
+in `api/top-stocks.js` are a static, hand-picked grouping meant to
+help browsing — not live financial data. Edit the `STOCKS` array in
+that file any time to add, remove, or re-tag symbols. The "cheap" vs
+"higher priced" split IS computed live, from the fetched price (≤ Rs.
+100 = cheap).
 
 ## 1. Add a Postgres database in Vercel (no separate account needed)
 

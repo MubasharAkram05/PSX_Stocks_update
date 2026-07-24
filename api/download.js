@@ -2,7 +2,7 @@
 // Called from the page via GET /api/download?format=excel or ?format=pdf
 // Reads every saved row from Vercel Postgres and streams back a file.
 
-const { sql } = require('@vercel/postgres');
+const { sql } = require('./db');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 

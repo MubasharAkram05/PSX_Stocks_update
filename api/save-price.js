@@ -4,7 +4,7 @@
 // "psx_prices" table in Vercel Postgres.
 
 const axios = require('axios');
-const { sql } = require('@vercel/postgres');
+const { sql } = require('./db');
 
 // -------------------------------------------------------
 // 1. Fetch the current/latest price for a PSX symbol

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ur-PK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Profit Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg: #0b0f0d;
+    --panel: #111613;
+    --panel-2: #151b17;
+    --line: #24302a;
+    --ink: #e9efe9;
+    --ink-dim: #8fa397;
+    --green: #3ddc84;
+    --green-dim: #1f6b45;
+    --red: #ff5d5d;
+    --amber: #e8b64a;
+    --mono: 'JetBrains Mono', monospace;
+    --disp: 'Space Grotesk', sans-serif;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #132018 0%, transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, #14201a 0%, transparent 55%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--disp);
+    min-height: 100vh;
+    padding: 32px 18px 60px;
+  }
+
+  .wrap{ max-width: 880px; margin: 0 auto; }
+
+  .ticker{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .12em;
+    color: var(--green);
+    border: 1px solid var(--green-dim);
+    display: inline-flex;
+    align-items:center;
+    gap:8px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    background: rgba(61,220,132,.06);
+  }
+  .ticker::before{
+    content:"";
+    width:6px; height:6px; border-radius:50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 1.6s infinite ease-in-out;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.25} }
+
+  h1{
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.05;
+    margin: 18px 0 6px;
+    letter-spacing: -0.01em;
+  }
+  h1 span{ color: var(--green); }
+
+  .sub{
+    color: var(--ink-dim);
+    font-size: 14.5px;
+    max-width: 60ch;
+    margin-bottom: 30px;
+  }
+
+  .board{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .card{
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 22px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute; top:0; left:0; right:0; height:1px;
+    background: linear-gradient(90deg, transparent, var(--green-dim), transparent);
+  }
+
+  .card-head{
+    display:flex; align-items:baseline; justify-content: space-between;
+    margin-bottom: 18px;
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 12px;
+  }
+  .card-head h2{
+    font-size: 17px;
+    margin:0;
+    font-weight: 600;
+  }
+  .tag{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: .08em;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+
+  label{
+    display:block;
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-bottom: 6px;
+    font-family: var(--mono);
+    letter-spacing: .03em;
+  }
+
+  .input-box{
+    position: relative;
+  }
+  .input-box .pfx{
+    position:absolute; left:12px; top:50%; transform: translateY(-50%);
+    color: var(--ink-dim);
+    font-family: var(--mono);
+    font-size: 13px;
+    pointer-events:none;
+  }
+
+  input[type=number], select{
+    width:100%;
+    background: #0d1210;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 14.5px;
+    padding: 11px 12px 11px 30px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+    -moz-appearance: textfield;
+  }
+  select{ padding-left: 12px; appearance: none; cursor:pointer; }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+
+  input:focus, select:focus{
+    border-color: var(--green-dim);
+    box-shadow: 0 0 0 3px rgba(61,220,132,.12);
+  }
+
+  .toggle-row{
+    display:flex; align-items:center; gap:10px;
+    margin: 14px 0 4px;
+    font-size: 13px;
+    color: var(--ink-dim);
+    font-family: var(--mono);
+  }
+  .toggle-row input{ width:auto; accent-color: var(--green); cursor:pointer; }
+
+  .fee-fields{
+    display:none;
+    grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+    gap: 14px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+  }
+  .fee-fields.show{ display:grid; }
+
+  .result{
+    margin-top: 20px;
+    background: #0d1210;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+
+  .result-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 6px 0;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    color: var(--ink-dim);
+  }
+  .result-row.total{
+    margin-top: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 16px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .result-row .val{ color: var(--ink); }
+  .result-row.total .val.pos{ color: var(--green); }
+  .result-row.total .val.neg{ color: var(--red); }
+
+  .pct-pill{
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-family: var(--mono);
+    margin-left: 8px;
+  }
+  .pct-pill.pos{ background: rgba(61,220,132,.12); color: var(--green); border:1px solid var(--green-dim); }
+  .pct-pill.neg{ background: rgba(255,93,93,.12); color: var(--red); border:1px solid #6b2727; }
+
+  .freq-note{
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-top: 8px;
+    font-family: var(--mono);
+  }
+
+  footer{
+    text-align:center;
+    color: var(--ink-dim);
+    font-size: 11.5px;
+    font-family: var(--mono);
+    margin-top: 34px;
+    letter-spacing: .04em;
+  }
+
+  @media (max-width: 480px){
+    .card{ padding: 18px 16px 20px; }
+  }
+
+  /* ---- Top nav bar ---- */
+  .topnav { background: #0b1220; border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 50; width: 100%; margin: -32px -18px 0; }
+  .topnav-inner { max-width: 880px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; }
+  .topnav-brand { color: var(--green); font-weight: 700; text-decoration: none; font-size: 15px; font-family: var(--disp); }
+  .topnav-links { display: flex; align-items: center; gap: 20px; }
+  .topnav-links > a { color: var(--ink); text-decoration: none; font-size: 14px; font-family: var(--disp); }
+  .topnav-links > a:hover, .topnav-links > a.active { color: var(--green); }
+  .dropdown { position: relative; }
+  .dropbtn { background: none; border: none; color: var(--ink); font-size: 14px; cursor: pointer; font-family: var(--disp); padding: 0; }
+  .dropbtn:hover { color: var(--green); }
+  .dropdown-content { display: none; position: absolute; top: 130%; left: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-width: 220px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+  .dropdown-content a { display: block; padding: 10px 14px; color: var(--ink); text-decoration: none; font-size: 13.5px; font-family: var(--disp); }
+  .dropdown-content a:hover { background: var(--panel-2); }
+  .dropdown.open .dropdown-content { display: block; }
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="topnav-brand">PSX Tools</a>
+    <div class="topnav-links">
+      <a href="/">Home</a>
+      <a href="/#top-stocks-section">Top Stocks</a>
+      <div class="dropdown">
+        <button class="dropbtn" type="button">Calculators ▾</button>
+        <div class="dropdown-content">
+          <a href="/stock-profit-calculator.html" class="active">Stock Profit Calculator</a>
+          <a href="/mutual-fund-calculator.html">Mutual Fund Calculator</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="wrap">
+
+  <span class="ticker">PSX &nbsp;/&nbsp; LIVE CALC</span>
+  <h1>Stock <span>Profit</span> &amp; Dividend Calculator</h1>
+  <p class="sub">Buy/sell profit aur dividend income dono calculate karein — annual ya quarterly. Sab kuch Rs (PKR) mein.</p>
+
+  <div class="board">
+
+    <!-- CAPITAL GAIN CARD -->
+    <div class="card">
+      <div class="card-head">
+        <h2>📈 Capital Gain Calculator</h2>
+        <span class="tag">BUY → SELL</span>
+      </div>
+
+      <div class="grid">
+        <div class="input-box">
+          <label for="buyPrice">Buy Price / Share</label>
+          <span class="pfx">Rs</span>
+          <input type="number" id="buyPrice" placeholder="540" value="540">
+        </div>
+        <div class="input-box">
+          <label for="sellPrice">Sell Price / Share</label>
+          <span class="pfx">Rs</span>
+          <input type="number" id="sellPrice" placeholder="590" value="590">
+        </div>
+        <div class="input-box">
+          <label for="shares">Total Shares</label>
+          <span class="pfx">#</span>
+          <input type="number" id="shares" placeholder="500" value="500">
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <input type="checkbox" id="feeToggle">
+        <label for="feeToggle" style="margin:0; cursor:pointer;">Broker commission / CGT (tax) subtract karo</label>
+      </div>
+
+      <div class="fee-fields" id="feeFields">
+        <div class="input-box">
+          <label for="commission">Broker Commission</label>
+          <span class="pfx">%</span>
+          <input type="number" id="commission" placeholder="0.15" value="0.15" step="0.01">
+        </div>
+        <div class="input-box">
+          <label for="cgt">Capital Gains Tax</label>
+          <span class="pfx">%</span>
+          <input type="number" id="cgt" placeholder="15" value="15" step="0.5">
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="result-row">
+          <span>Investment (Buy Total)</span>
+          <span class="val" id="cgInvest">Rs 0</span>
+        </div>
+        <div class="result-row">
+          <span>Sale Value (Sell Total)</span>
+          <span class="val" id="cgSale">Rs 0</span>
+        </div>
+        <div class="result-row" id="cgFeeRow" style="display:none;">
+          <span>Fees + Tax</span>
+          <span class="val" id="cgFees">Rs 0</span>
+        </div>
+        <div class="result-row total">
+          <span>Net Profit / Loss</span>
+          <span><span class="val" id="cgProfit">Rs 0</span><span class="pct-pill" id="cgPct">0%</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDEND CARD -->
+    <div class="card">
+      <div class="card-head">
+        <h2>💰 Dividend Income Calculator</h2>
+        <span class="tag">ANNUAL / QUARTERLY</span>
+      </div>
+
+      <div class="grid">
+        <div class="input-box">
+          <label for="divShares">Total Shares</label>
+          <span class="pfx">#</span>
+          <input type="number" id="divShares" placeholder="500" value="500">
+        </div>
+        <div class="input-box">
+          <label for="divStockPrice">Current Stock Price</label>
+          <span class="pfx">Rs</span>
+          <input type="number" id="divStockPrice" placeholder="540" value="540">
+        </div>
+        <div class="input-box">
+          <label for="divMode">Dividend Input Type</label>
+          <select id="divMode">
+            <option value="percent">Yield % (e.g. 7%)</option>
+            <option value="amount">Rs per Share (e.g. 35)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:14px;">
+        <div class="input-box" id="divPercentBox">
+          <label for="divPercent">Dividend Yield</label>
+          <span class="pfx">%</span>
+          <input type="number" id="divPercent" placeholder="7" value="7" step="0.1">
+        </div>
+        <div class="input-box" id="divAmountBox" style="display:none;">
+          <label for="divAmount">Dividend per Share</label>
+          <span class="pfx">Rs</span>
+          <input type="number" id="divAmount" placeholder="35" value="35" step="0.1">
+        </div>
+        <div class="input-box">
+          <label for="divFreq">Payment Frequency</label>
+          <select id="divFreq">
+            <option value="1">Annual (1x saal mein)</option>
+            <option value="2">Semi-Annual (2x saal mein)</option>
+            <option value="4" selected>Quarterly (4x saal mein)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <input type="checkbox" id="divTaxToggle" checked>
+        <label for="divTaxToggle" style="margin:0; cursor:pointer;">Withholding tax subtract karo dividend par</label>
+      </div>
+
+      <div class="fee-fields show" id="divTaxFields">
+        <div class="input-box">
+          <label for="divTax">Withholding Tax</label>
+          <span class="pfx">%</span>
+          <input type="number" id="divTax" placeholder="15" value="15" step="0.5">
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="result-row">
+          <span>Total Investment (shares × price)</span>
+          <span class="val" id="divInvestTotal">Rs 0</span>
+        </div>
+        <div class="result-row">
+          <span>Per Payment (per share)</span>
+          <span class="val" id="divPerShare">Rs 0</span>
+        </div>
+        <div class="result-row">
+          <span>Per Payment (total, before tax)</span>
+          <span class="val" id="divPerPayment">Rs 0</span>
+        </div>
+        <div class="result-row">
+          <span>Gross Annual Dividend (before tax)</span>
+          <span class="val" id="divAnnualGross">Rs 0</span>
+        </div>
+        <div class="result-row" id="divTaxRow">
+          <span>Tax Deducted (annual)</span>
+          <span class="val" id="divTaxAmount">Rs 0</span>
+        </div>
+        <div class="result-row total">
+          <span>Net Annual Dividend Income</span>
+          <span><span class="val pos" id="divAnnual">Rs 0</span><span class="pct-pill pos" id="divYieldPct">0% yield</span></span>
+        </div>
+        <div class="freq-note" id="divFreqNote">Har payment: Rs 0 × 4 dafa saal mein</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>MADE FOR PSX INVESTORS · Rs (PKR) · Sab calculations local browser mein hoti hain</footer>
+</div>
+
+<script>
+function fmt(n){
+  const sign = n < 0 ? "-" : "";
+  n = Math.abs(n);
+  return sign + "Rs " + n.toLocaleString('en-PK', {maximumFractionDigits: 2});
+}
+
+// ---------- Capital Gain Calculator ----------
+const buyPrice = document.getElementById('buyPrice');
+const sellPrice = document.getElementById('sellPrice');
+const shares = document.getElementById('shares');
+const feeToggle = document.getElementById('feeToggle');
+const feeFields = document.getElementById('feeFields');
+const commission = document.getElementById('commission');
+const cgt = document.getElementById('cgt');
+
+feeToggle.addEventListener('change', () => {
+  feeFields.classList.toggle('show', feeToggle.checked);
+  document.getElementById('cgFeeRow').style.display = feeToggle.checked ? 'flex' : 'none';
+  calcCapitalGain();
+});
+
+function calcCapitalGain(){
+  const bp = parseFloat(buyPrice.value) || 0;
+  const sp = parseFloat(sellPrice.value) || 0;
+  const sh = parseFloat(shares.value) || 0;
+
+  const investTotal = bp * sh;
+  const saleTotal = sp * sh;
+  let grossProfit = saleTotal - investTotal;
+  let fees = 0;
+
+  if(feeToggle.checked){
+    const commRate = (parseFloat(commission.value) || 0) / 100;
+    const cgtRate = (parseFloat(cgt.value) || 0) / 100;
+    const commissionFee = (investTotal + saleTotal) * commRate;
+    const taxFee = grossProfit > 0 ? grossProfit * cgtRate : 0;
+    fees = commissionFee + taxFee;
+  }
+
+  const netProfit = grossProfit - fees;
+  const pct = investTotal > 0 ? (netProfit / investTotal) * 100 : 0;
+
+  document.getElementById('cgInvest').textContent = fmt(investTotal);
+  document.getElementById('cgSale').textContent = fmt(saleTotal);
+  document.getElementById('cgFees').textContent = fmt(fees);
+  document.getElementById('cgProfit').textContent = fmt(netProfit);
+  document.getElementById('cgProfit').className = 'val ' + (netProfit >= 0 ? 'pos' : 'neg');
+
+  const pctPill = document.getElementById('cgPct');
+  pctPill.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+  pctPill.className = 'pct-pill ' + (pct >= 0 ? 'pos' : 'neg');
+}
+
+[buyPrice, sellPrice, shares, commission, cgt].forEach(el => el.addEventListener('input', calcCapitalGain));
+
+// ---------- Dividend Calculator ----------
+const divShares = document.getElementById('divShares');
+const divStockPrice = document.getElementById('divStockPrice');
+const divMode = document.getElementById('divMode');
+const divPercent = document.getElementById('divPercent');
+const divAmount = document.getElementById('divAmount');
+const divFreq = document.getElementById('divFreq');
+const divPercentBox = document.getElementById('divPercentBox');
+const divAmountBox = document.getElementById('divAmountBox');
+
+const divTaxToggle = document.getElementById('divTaxToggle');
+const divTaxFields = document.getElementById('divTaxFields');
+const divTax = document.getElementById('divTax');
+const divTaxRow = document.getElementById('divTaxRow');
+
+divMode.addEventListener('change', () => {
+  const isPercent = divMode.value === 'percent';
+  divPercentBox.style.display = isPercent ? 'block' : 'none';
+  divAmountBox.style.display = isPercent ? 'none' : 'block';
+  calcDividend();
+});
+
+divTaxToggle.addEventListener('change', () => {
+  divTaxFields.classList.toggle('show', divTaxToggle.checked);
+  divTaxRow.style.display = divTaxToggle.checked ? 'flex' : 'none';
+  calcDividend();
+});
+
+function calcDividend(){
+  const sh = parseFloat(divShares.value) || 0;
+  const price = parseFloat(divStockPrice.value) || 0;
+  const freq = parseFloat(divFreq.value) || 1;
+
+  const investTotal = sh * price;
+
+  let perShareAnnual;
+  if(divMode.value === 'percent'){
+    const pct = parseFloat(divPercent.value) || 0;
+    perShareAnnual = price * (pct / 100);
+  } else {
+    const amt = parseFloat(divAmount.value) || 0;
+    perShareAnnual = amt * freq; // amount entered is PER PAYMENT, so annualize
+  }
+
+  const perSharePerPayment = perShareAnnual / freq;
+  const totalPerPaymentGross = perSharePerPayment * sh;
+  const totalAnnualGross = perShareAnnual * sh;
+
+  const taxRate = divTaxToggle.checked ? (parseFloat(divTax.value) || 0) / 100 : 0;
+  const taxAmountAnnual = totalAnnualGross * taxRate;
+  const totalAnnualNet = totalAnnualGross - taxAmountAnnual;
+
+  const yieldPct = price > 0 ? (totalAnnualNet / investTotal) * 100 : 0;
+
+  const freqLabel = freq == 1 ? "saal mein 1 dafa" : freq == 2 ? "saal mein 2 dafa" : "saal mein 4 dafa";
+  const totalPerPaymentNet = totalPerPaymentGross * (1 - taxRate);
+
+  document.getElementById('divInvestTotal').textContent = fmt(investTotal);
+  document.getElementById('divPerShare').textContent = fmt(perSharePerPayment) + " /share";
+  document.getElementById('divPerPayment').textContent = fmt(totalPerPaymentGross);
+  document.getElementById('divAnnualGross').textContent = fmt(totalAnnualGross);
+  document.getElementById('divTaxAmount').textContent = fmt(taxAmountAnnual);
+  document.getElementById('divAnnual').textContent = fmt(totalAnnualNet);
+  document.getElementById('divYieldPct').textContent = yieldPct.toFixed(2) + '% net yield';
+  document.getElementById('divFreqNote').textContent =
+    `Har payment (tax ke baad): ${fmt(totalPerPaymentNet)} × ${freq} dafa (${freqLabel})`;
+}
+
+[divShares, divStockPrice, divPercent, divAmount, divFreq, divTax].forEach(el => el.addEventListener('input', calcDividend));
+
+// Init
+calcCapitalGain();
+calcDividend();
+
+// Calculators dropdown toggle
+document.querySelectorAll('.dropdown > .dropbtn').forEach((b) => {
+  b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    b.parentElement.classList.toggle('open');
+  });
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.dropdown.open').forEach((d) => d.classList.remove('open'));
+});
+</script>
+</body>
+</html>

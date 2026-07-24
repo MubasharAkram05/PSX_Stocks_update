@@ -47,13 +47,50 @@
 
     <div class="add-row">
       <input id="newSymbol" placeholder="e.g. ENGRO" autocomplete="off" />
-      <button id="addBtn">Add Stock</button>
+      <select id="newSector">
+        <option value="other">Sector: Other</option>
+        <option value="petroleum">Petroleum</option>
+        <option value="fertilizer">Fertilizer</option>
+        <option value="pharma">Medicine</option>
+        <option value="cement">Cement</option>
+        <option value="tech">Technology</option>
+        <option value="power">Power</option>
+        <option value="chemical">Chemical</option>
+        <option value="auto">Automobile</option>
+        <option value="engineering">Engineering</option>
+        <option value="steel">Steel</option>
+        <option value="bank">Bank</option>
+      </select>
     </div>
+    <div class="checkbox-row">
+      <label><input type="checkbox" id="newDividend" /> High Dividend</label>
+      <label><input type="checkbox" id="newGrowth" /> Future Growth</label>
+    </div>
+    <button id="addBtn">Add Stock</button>
     <div id="addStatus" class="status"></div>
 
     <ul class="manage-list" id="manageList">
       <li class="placeholder">Loading...</li>
     </ul>
+  </div>
+
+  <div class="card" id="settingsPanel" style="display:none;">
+    <h1>Save Confirmation Popup</h1>
+    <p class="sub">Customize the message shown before a price is saved. Use <code>{symbol}</code> to insert the stock symbol.</p>
+    <input id="confirmMessageInput" placeholder="e.g. Save this price for {symbol}?" autocomplete="off" />
+    <button id="saveSettingsBtn">Save Message</button>
+    <div id="settingsStatus" class="status"></div>
+  </div>
+
+  <div class="card danger-card" id="removePanel" style="display:none;">
+    <h1>Remove Saved Data</h1>
+    <p class="sub">Permanently deletes saved price rows within a date range. This cannot be undone.</p>
+    <div class="date-filter">
+      <label>From<input type="date" id="removeFrom" /></label>
+      <label>To<input type="date" id="removeTo" /></label>
+    </div>
+    <button id="removeBtn" class="danger-btn">Delete Data in Range</button>
+    <div id="removeStatus" class="status"></div>
   </div>
 
 </div>

@@ -30,7 +30,7 @@
 
 <div class="page">
   <h1>Top PSX Stocks</h1>
-  <p class="sub">Stocks curated by the admin. Filter by category or sector below — click a stock to jump to the tracker with it pre-filled.</p>
+  <p class="sub">Stocks curated by the admin. Filter by category or sector below — click a stock to see its details.</p>
 
   <div class="filter-bar">
     <div class="dropdown filter-dropdown">
@@ -62,6 +62,13 @@
 
   <div class="grid" id="stockGrid">
     <div class="placeholder">Loading...</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div id="modalBody"></div>
   </div>
 </div>
 

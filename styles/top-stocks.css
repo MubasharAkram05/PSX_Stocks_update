@@ -53,6 +53,7 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
   padding: 16px 18px;
   text-decoration: none;
   color: #e2e8f0;
+  cursor: pointer;
   transition: border-color 0.15s, transform 0.1s;
   display: block;
 }
@@ -94,3 +95,59 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
 .badge.growth { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
 
 .placeholder { color: #64748b; grid-column: 1 / -1; }
+
+/* --- Stock detail popup --- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 360px;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #334155;
+  border: none;
+  color: #e2e8f0;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.modal-close:hover { background: #475569; }
+.modal-sym { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+.modal-price { font-size: 16px; color: #94a3b8; margin-bottom: 16px; }
+.modal-spark { margin-bottom: 16px; }
+.modal-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.modal-row { display: flex; justify-content: space-between; font-size: 13.5px; }
+.modal-row .label { color: #94a3b8; }
+.modal-row .value { font-weight: 600; text-transform: capitalize; }
+.modal-row .value.up { color: #4ade80; }
+.modal-row .value.down { color: #f87171; }
+.modal-link {
+  display: block;
+  text-align: center;
+  background: #22c55e;
+  color: #052e16;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 11px;
+  border-radius: 8px;
+  text-decoration: none;
+}

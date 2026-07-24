@@ -18,8 +18,10 @@ junk data.
    account system).
 2. Redeploy after adding it.
 3. Open `/admin.html` on your site, log in with that password.
-4. From there: **add**, **remove**, and **reorder** (↑/↓) the stocks
-   shown on the Top Stocks page.
+4. From there: **add** stocks (with sector + High Dividend/Future
+   Growth tags), **edit** any existing stock's tags (✎ button),
+   **remove** stocks, and **reorder** (↑/↓) — full control over what
+   shows on the Top Stocks page and how it's categorized.
 5. The login is stored in the browser's session storage — once logged
    in (on Admin or anywhere else in that browser tab), the **Save
    Price** button on the home page will work too. If someone who
@@ -68,15 +70,19 @@ in their docs if it doesn't appear to fire.
   Price card (admin-only), Recently Added on the left (narrower) on
   wider screens.
 - `top-stocks.html` / `styles/top-stocks.css` / `scripts/top-stocks.js`
-  — the admin-curated stock list (managed via admin.html). Two
-  dropdowns: **Category** (All, Cheap, Higher Priced, High Dividend,
-  Future Growth) and **Sector** (Petroleum, Fertilizer, Medicine,
-  Cement, Tech, Power, Chemical, Automobile). Each card has a
-  sparkline — green if trending up, red if down.
+  — the admin-curated stock list. Two dropdowns: **Category** (All,
+  Cheap, Higher Priced, High Dividend, Future Growth) and **Sector**
+  (Petroleum, Fertilizer, Medicine, Cement, Tech, Power, Chemical,
+  Automobile). Each card has a sparkline; click a card for a popup
+  with full details (price, sector, tags, date) and a link to the
+  tracker.
 - `admin.html` / `styles/admin.css` / `scripts/admin.js` — admin login,
-  then add/remove/reorder the Top Stocks list.
-- `news.html` / `styles/news.css` / `scripts/news.js` — news about
-  PSX-listed companies, with search and a Dividend/AGM filter.
+  then add (with sector/dividend/growth tags), edit, remove, and
+  reorder the Top Stocks list.
+- `news.html` / `styles/news.css` / `scripts/news.js` — company
+  announcements only (board meetings, dividends, book closures,
+  AGM/EOGM, bonus/right issues) — general market news is filtered
+  out. Search box plus a Dividend/Book Closure-only filter.
 - `stock-profit-calculator.html` / `styles/stock-profit-calculator.css`
   / `scripts/stock-profit-calculator.js`
 - `mutual-fund-calculator.html` / `styles/mutual-fund-calculator.css`
@@ -116,6 +122,23 @@ in their docs if it doesn't appear to fire.
   endpoint; shows nothing if that lookup fails, rather than guessing.
 - **News** comes from Google News' public feed, not PSX's own
   (rights-restricted) announcements feed.
+
+## Save confirmation popup
+
+Before saving a price, the home page now shows a `confirm()` popup.
+The message is customizable — go to the Admin page → **Save
+Confirmation Popup** card, edit the text (use `{symbol}` to insert
+the stock symbol, e.g. "Save this price for {symbol}?"), and Save.
+It's stored in the database (`app_settings` table) and applies
+immediately for everyone.
+
+## Download and remove data by date range
+
+- **Downloads** (Excel/PDF, home page): optional From/To date fields
+  above the download buttons. Leave both blank to download everything.
+- **Remove data** (Admin page only, under "Remove Saved Data"): same
+  From/To range, but deletes those rows permanently. Requires typing
+  both dates and confirming a popup warning — this cannot be undone.
 
 ## Setup
 

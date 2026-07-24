@@ -55,9 +55,16 @@ async function ensureSchema() {
     CREATE TABLE IF NOT EXISTS stock_list (
       symbol TEXT PRIMARY KEY,
       sort_order INT NOT NULL DEFAULT 0,
+      sector TEXT NOT NULL DEFAULT 'other',
+      dividend BOOLEAN NOT NULL DEFAULT false,
+      growth BOOLEAN NOT NULL DEFAULT false,
       created_at TIMESTAMP DEFAULT NOW()
     )
   `);
+  // Columns added after the table already existed on earlier deployments
+  await pool.query(`ALTER TABLE stock_list ADD COLUMN IF NOT EXISTS sector TEXT NOT NULL DEFAULT 'other'`);
+  await pool.query(`ALTER TABLE stock_list ADD COLUMN IF NOT EXISTS dividend BOOLEAN NOT NULL DEFAULT false`);
+  await pool.query(`ALTER TABLE stock_list ADD COLUMN IF NOT EXISTS growth BOOLEAN NOT NULL DEFAULT false`);
 
   // One-time seed: if the admin list is empty but prices have already
   // been saved before (e.g. an existing deployment), carry those
@@ -72,6 +79,14 @@ async function ensureSchema() {
       ON CONFLICT (symbol) DO NOTHING
     `);
   }
+
+  // --- Admin-customizable app settings (key/value) ---
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    )
+  `);
 }
 
 module.exports = { pool, ensureSchema };

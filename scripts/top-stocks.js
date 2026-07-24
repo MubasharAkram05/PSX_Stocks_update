@@ -50,10 +50,9 @@ function renderStocks(stocks) {
     return;
   }
   stocks.forEach((item) => {
-    const a = document.createElement('a');
-    a.className = 'stock-card';
-    a.href = `/?symbol=${encodeURIComponent(item.symbol)}`;
-    a.innerHTML = `
+    const card = document.createElement('div');
+    card.className = 'stock-card';
+    card.innerHTML = `
       <div class="top-row">
         <div>
           <span class="sym">${item.symbol}</span>
@@ -63,9 +62,44 @@ function renderStocks(stocks) {
       </div>
       <div class="badges">${badgesFor(item)}</div>
     `;
-    grid.appendChild(a);
+    card.addEventListener('click', () => openModal(item));
+    grid.appendChild(card);
   });
 }
+
+// --- Stock detail popup ---
+const modalOverlay = document.getElementById('modalOverlay');
+const modalBody = document.getElementById('modalBody');
+const modalClose = document.getElementById('modalClose');
+
+function openModal(item) {
+  const dirLabel = item.direction === 'up' ? 'Trending Up' : item.direction === 'down' ? 'Trending Down' : 'Flat';
+  const dirClass = item.direction === 'up' ? 'up' : item.direction === 'down' ? 'down' : '';
+
+  modalBody.innerHTML = `
+    <div class="modal-sym">${item.symbol}</div>
+    <div class="modal-price">Rs. ${item.price} <span class="value ${dirClass}">· ${dirLabel}</span></div>
+    <div class="modal-spark">${sparklineSvg(item.trend, item.direction, { w: 280, h: 60 })}</div>
+    <div class="modal-rows">
+      <div class="modal-row"><span class="label">Date</span><span class="value">${item.date || '—'}</span></div>
+      <div class="modal-row"><span class="label">Sector</span><span class="value">${item.sector || 'other'}</span></div>
+      <div class="modal-row"><span class="label">High Dividend</span><span class="value">${item.dividend ? 'Yes' : 'No'}</span></div>
+      <div class="modal-row"><span class="label">Future Growth</span><span class="value">${item.growth ? 'Yes' : 'No'}</span></div>
+      <div class="modal-row"><span class="label">Price Category</span><span class="value">${item.priceCategory === 'cheap' ? 'Cheap' : 'Higher Priced'}</span></div>
+    </div>
+    <a class="modal-link" href="/?symbol=${encodeURIComponent(item.symbol)}">Go to Tracker →</a>
+  `;
+  modalOverlay.classList.add('open');
+}
+
+function closeModal() {
+  modalOverlay.classList.remove('open');
+}
+
+modalClose.addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', (e) => {
+  if (e.target === modalOverlay) closeModal();
+});
 
 function applyFilters() {
   renderStocks(

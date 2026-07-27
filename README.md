@@ -76,11 +76,12 @@ as one, even plain helpers with no route of their own.
 - `api/preview-price.js` — fetches today's low/high without saving, to prefill the editable popup
 - `api/delete-data.js` — deletes saved rows within a date range (open to anyone)
 - `api/cron-daily-save.js` — same upsert, run automatically for every saved symbol
-- `lib/stock-order.js` — computes the Stocks page's display order (which sector shows first, and each stock's position within it), used by both `api/stocks.js` and the reorder actions below
+- `lib/stock-order.js` — computes the Stocks page's display order (which sector shows first, and each stock's position within it), used by `api/stocks.js`, the reorder actions below, and `api/download.js`
+- `lib/sector-labels.js` — curated display label per sector key, used by `api/download.js`'s Category column
 - `api/stocks.js` — every stock in `stock_sectors`, in display order, tagged with its sector
 - `api/manage-stocks.js` — add/remove a stock, set its sector, or reorder a stock/sector (open to anyone)
 - `api/psx-index.js` — best-effort KSE-100 index level for the header
-- `api/download.js` — Excel/PDF export, optional `?from=&to=` date filter
+- `api/download.js` — Excel/PDF export, optional `?from=&to=` date filter, rows arranged to match the Stocks page's current order with a Category column (`lib/sector-labels.js` supplies the display label)
 
 ## Honesty notes
 

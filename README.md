@@ -39,31 +39,24 @@ Monday–Friday.
   Price card (with editable confirmation popup), download buttons
   with an optional date-range filter, and a Remove Saved Data tool
   (same date-range filter, permanent — open to anyone, no login
-  required).
+  required). Saving a price for a symbol that isn't tracked on the
+  Stocks page yet adds it there automatically, with a sector guessed
+  from a static lookup — no separate Add Stock step needed.
 - `stocks.html` / `styles/stocks.css` / `scripts/stocks.js` — every
-  stock you've added, grouped into labeled sector rows (Petroleum,
+  stock that's been saved (via Save Price, the daily cron, or the
+  **Add Stock** form here) grouped into labeled sector rows (Petroleum,
   Fertilizer, Medicine, Bank, Cement, Tech, Power, Chemical,
-  Automobile, Engineering, Steel, or a custom sector you type in). An
-  **Add Stock** form (symbol + sector) at the top, a **Save All**
-  button that saves today's low/high for every symbol ever saved on
-  demand (same as the daily cron), and a **✕ remove** button on each
-  card — all open to anyone, no login required. Removing only takes
-  it off this list; it doesn't delete any saved price history. Click
-  a card (not the ✕) to jump to the home page with it pre-filled.
-- `recently-added.html` / `styles/recently-added.css` /
-  `scripts/recently-added.js` — up to 15 symbols you've saved a price
-  for, with a live price and trend. **↑/↓** reorders a row and **✕**
-  removes it from this list (open to anyone, no login required;
-  doesn't touch saved price history). **Save All** re-fetches and
-  saves today's low/high for every symbol ever saved, on demand.
-  Click a row (not the buttons) to jump to the home page with it
-  pre-filled.
+  Automobile, Engineering, Steel, or a custom sector you type in). A
+  **Save All** button saves today's low/high for every symbol ever
+  saved on demand (same as the daily cron), and a **✕ remove** button
+  on each card takes it off this list — both open to anyone, no login
+  required. Removing doesn't delete any saved price history. Click a
+  card (not the ✕) to jump to the home page with it pre-filled.
 
 **Shared across every page:**
 - `styles/nav.css` / `scripts/nav.js` — nav bar and the KSE-100 index
   shown below it
-- `scripts/sparkline.js` — sparkline SVG builder for the Stocks and
-  Recently Added pages
+- `scripts/sparkline.js` — sparkline SVG builder for the Stocks page
 
 **Backend (Vercel serverless functions):**
 
@@ -76,13 +69,11 @@ as one, even plain helpers with no route of their own.
   sparkline history), `getDailyRange()` (today's lowest and highest
   intraday price)
 - `lib/db.js` — shared database connection + schema/migration logic
-- `lib/recent-order.js` — computes the Recently Added page's symbol order (default: last-saved-first, overridden by any manual reordering/removal)
+- `lib/concurrency.js` — runs an async lookup over a list with at most N in flight at once, instead of an uncapped `Promise.all` — used anywhere a page fetches live prices for many symbols at once, to avoid tripping PSX's rate limiting
 - `api/save-price.js` — upserts today's low/high price for a symbol (accepts edited values from the popup; open to anyone)
 - `api/preview-price.js` — fetches today's low/high without saving, to prefill the editable popup
 - `api/delete-data.js` — deletes saved rows within a date range (open to anyone)
 - `api/cron-daily-save.js` — same upsert, run automatically for every saved symbol
-- `api/recent.js` — up to 15 symbols for the Recently Added page (in their current manual/default order), with a live price and trend
-- `api/manage-recent.js` — reorder or remove a symbol from the Recently Added page (open to anyone)
 - `api/stocks.js` — every stock in `stock_sectors`, tagged with its sector
 - `api/manage-stocks.js` — add/remove stocks and set their sector (open to anyone)
 - `api/psx-index.js` — best-effort KSE-100 index level for the header

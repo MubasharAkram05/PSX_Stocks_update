@@ -10,9 +10,17 @@
 // or by the daily cron job), price_low only moves down and price_high
 // only moves up — never a duplicate row, and a re-save never erases a
 // more extreme value already captured today.
+//
+// Also makes sure the symbol shows up on the Stocks page: if it isn't
+// already tracked there, it's added with a sector guessed from the
+// static lookup (falling back to "other"), so saving a price is
+// enough on its own — no separate trip to Add Stock required. Doesn't
+// touch the sector of a symbol that's already tracked (e.g. edited by
+// hand on the Stocks page).
 
 const { pool, ensureSchema } = require('../lib/db');
 const { getDailyRange } = require('../lib/psx');
+const SECTOR_META = require('../lib/sector-meta');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -55,6 +63,12 @@ module.exports = async (req, res) => {
          price_low = LEAST(psx_prices.price_low, EXCLUDED.price_low),
          price_high = GREATEST(psx_prices.price_high, EXCLUDED.price_high)`,
       [result.date, result.symbol, result.low, result.high]
+    );
+
+    const sector = SECTOR_META[result.symbol] || 'other';
+    await pool.query(
+      `INSERT INTO stock_sectors (symbol, sector) VALUES ($1, $2) ON CONFLICT (symbol) DO NOTHING`,
+      [result.symbol, sector]
     );
 
     // Report back whatever ended up stored (could be an earlier, more

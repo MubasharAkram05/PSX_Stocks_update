@@ -11,8 +11,8 @@ const { getStockPriceWithTrend } = require('../lib/psx');
 module.exports = async (req, res) => {
   try {
     const dbRes = await pool.query(`
-      SELECT symbol, price, date FROM (
-        SELECT DISTINCT ON (symbol) symbol, price, date, id
+      SELECT symbol, price_low, date FROM (
+        SELECT DISTINCT ON (symbol) symbol, price_low, date, id
         FROM psx_prices
         ORDER BY symbol, id DESC
       ) t
@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
 
     const recent = await Promise.all(
       dbRes.rows.map(async (row) => {
-        const storedPrice = Number(row.price);
+        const storedPrice = Number(row.price_low);
         try {
           const live = await getStockPriceWithTrend(row.symbol);
           return {

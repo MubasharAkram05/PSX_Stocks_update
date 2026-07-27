@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
 
   let rows;
   try {
-    let query = `SELECT date, symbol, price FROM psx_prices`;
+    let query = `SELECT date, symbol, price_low, price_high FROM psx_prices`;
     const params = [];
     const conditions = [];
 
@@ -67,13 +67,14 @@ module.exports = async (req, res) => {
     }
     doc.moveDown();
 
-    const colX = { date: 40, symbol: 180, price: 320 };
+    const colX = { date: 40, symbol: 180, low: 300, high: 400 };
     let y = doc.y;
 
     doc.fontSize(11).font('Helvetica-Bold');
     doc.text('Date', colX.date, y);
     doc.text('Symbol', colX.symbol, y);
-    doc.text('Price (Rs.)', colX.price, y);
+    doc.text('Low (Rs.)', colX.low, y);
+    doc.text('High (Rs.)', colX.high, y);
     y += 18;
     doc.moveTo(40, y).lineTo(500, y).stroke();
     y += 8;
@@ -86,7 +87,8 @@ module.exports = async (req, res) => {
       }
       doc.text(formatDate(r.date), colX.date, y);
       doc.text(r.symbol, colX.symbol, y);
-      doc.text(String(r.price), colX.price, y);
+      doc.text(String(r.price_low), colX.low, y);
+      doc.text(r.price_high != null ? String(r.price_high) : '—', colX.high, y);
       y += 18;
     });
 
@@ -100,13 +102,15 @@ module.exports = async (req, res) => {
   sheet.columns = [
     { header: 'Date', key: 'date', width: 15 },
     { header: 'Symbol', key: 'symbol', width: 15 },
-    { header: 'Price', key: 'price', width: 15 },
+    { header: 'Low', key: 'low', width: 15 },
+    { header: 'High', key: 'high', width: 15 },
   ];
   rows.forEach((r) =>
     sheet.addRow({
       date: formatDate(r.date),
       symbol: r.symbol,
-      price: Number(r.price),
+      low: Number(r.price_low),
+      high: r.price_high != null ? Number(r.price_high) : null,
     })
   );
   sheet.getRow(1).font = { bold: true };

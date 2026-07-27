@@ -1,7 +1,7 @@
 // scripts/tracker.js
-// Logic specific to index.html: saving a price (via an editable
-// confirmation popup), downloads with a date filter, and removing
-// saved data within a date range.
+// Logic specific to index.html: saving today's low/high price (via an
+// editable confirmation popup), downloads with a date filter, and
+// removing saved data within a date range.
 
 const input = document.getElementById('symbol');
 const btn = document.getElementById('saveBtn');
@@ -18,7 +18,8 @@ const removeStatus = document.getElementById('removeStatus');
 // --- Confirmation popup elements ---
 const confirmOverlay = document.getElementById('confirmOverlay');
 const confirmSymbolLine = document.getElementById('confirmSymbolLine');
-const confirmPriceInput = document.getElementById('confirmPriceInput');
+const confirmLowInput = document.getElementById('confirmLowInput');
+const confirmHighInput = document.getElementById('confirmHighInput');
 const confirmCancelBtn = document.getElementById('confirmCancelBtn');
 const confirmSaveBtn = document.getElementById('confirmSaveBtn');
 
@@ -29,7 +30,7 @@ async function startSave() {
   if (!symbol) return;
 
   btn.disabled = true;
-  status.textContent = 'Fetching current price...';
+  status.textContent = 'Fetching today’s low/high...';
   status.className = '';
 
   try {
@@ -39,7 +40,8 @@ async function startSave() {
 
     pendingSymbol = data.symbol;
     confirmSymbolLine.textContent = `${data.symbol} — ${data.date}`;
-    confirmPriceInput.value = data.price;
+    confirmLowInput.value = data.low;
+    confirmHighInput.value = data.high;
     confirmOverlay.classList.add('open');
     status.textContent = '';
   } catch (err) {
@@ -64,7 +66,8 @@ confirmOverlay.addEventListener('click', (e) => {
 
 confirmSaveBtn.addEventListener('click', async () => {
   if (!pendingSymbol) return;
-  const price = confirmPriceInput.value;
+  const low = confirmLowInput.value;
+  const high = confirmHighInput.value;
 
   confirmSaveBtn.disabled = true;
   status.textContent = 'Saving...';
@@ -74,12 +77,12 @@ confirmSaveBtn.addEventListener('click', async () => {
     const res = await fetch('/api/save-price', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ symbol: pendingSymbol, price }),
+      body: JSON.stringify({ symbol: pendingSymbol, low, high }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Something went wrong.');
 
-    status.textContent = `Saved: ${data.symbol} = Rs. ${data.price} on ${data.date}`;
+    status.textContent = `Saved: ${data.symbol} = Low Rs. ${data.low} / High Rs. ${data.high} on ${data.date}`;
     status.className = 'ok';
     input.value = '';
     closeConfirm();

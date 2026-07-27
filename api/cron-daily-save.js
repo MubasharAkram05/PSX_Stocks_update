@@ -1,11 +1,11 @@
 // api/cron-daily-save.js
 // Triggered automatically once a day by Vercel Cron (see vercel.json).
-// For every symbol that's ever been saved, fetches today's lowest
-// price and upserts it — same "one row per symbol per day, lowest
-// price wins" rule as manual saves via api/save-price.js.
+// For every symbol that's ever been saved, fetches today's low/high
+// and upserts them — same "one row per symbol per day, most extreme
+// values win" rule as manual saves via api/save-price.js.
 
 const { pool, ensureSchema } = require('../lib/db');
-const { getDailyLowPrice } = require('../lib/psx');
+const { getDailyRange } = require('../lib/psx');
 
 module.exports = async (req, res) => {
   try {
@@ -17,13 +17,15 @@ module.exports = async (req, res) => {
     const results = await Promise.all(
       symbols.map(async (sym) => {
         try {
-          const { date, price } = await getDailyLowPrice(sym);
+          const { date, low, high } = await getDailyRange(sym);
           await pool.query(
-            `INSERT INTO psx_prices (date, symbol, price)
-             VALUES ($1, $2, $3)
+            `INSERT INTO psx_prices (date, symbol, price_low, price_high)
+             VALUES ($1, $2, $3, $4)
              ON CONFLICT (symbol, date)
-             DO UPDATE SET price = LEAST(psx_prices.price, EXCLUDED.price)`,
-            [date, sym, price]
+             DO UPDATE SET
+               price_low = LEAST(psx_prices.price_low, EXCLUDED.price_low),
+               price_high = GREATEST(psx_prices.price_high, EXCLUDED.price_high)`,
+            [date, sym, low, high]
           );
           return { symbol: sym, ok: true };
         } catch (err) {

@@ -1,29 +1,29 @@
 # PSX Daily Price Tracker
 
-Type a PSX symbol → it saves today's LOWEST price into a database —
-one row per stock per day, never a duplicate. Prices also save
-automatically once a day via a cron job. Download everything as Excel
-or PDF, optionally filtered to a date range.
+Type a PSX symbol → it saves today's LOW and HIGH price into a
+database — one row per stock per day, never a duplicate. Prices also
+save automatically once a day via a cron job. Download everything as
+Excel or PDF, optionally filtered to a date range.
 
-## How saving works (no duplicates, lowest price wins)
+## How saving works (no duplicates, most extreme values win)
 
-- Clicking Save Price fetches today's lowest price and opens a popup
-  showing it — **the price field is editable**, so you can adjust it
-  before confirming (`api/preview-price.js` fetches without saving;
-  `api/save-price.js` saves whatever you confirm).
+- Clicking Save Price fetches today's low and high and opens a popup
+  showing both — **both fields are editable**, so you can adjust
+  either before confirming (`api/preview-price.js` fetches without
+  saving; `api/save-price.js` saves whatever you confirm).
 - Each stock gets **exactly one row per calendar date**, enforced by
-  a database uniqueness constraint on `(symbol, date)`.
-- Re-saving the same symbol later the same day only replaces the
-  stored price if the new one is **lower** — never a duplicate, never
-  a higher price overwriting a lower one. (This applies even to
-  manually-edited prices — if you type a higher value than what's
-  already saved for today, the lower one stays.)
+  a database uniqueness constraint on `(symbol, date)`, with separate
+  `price_low` / `price_high` columns.
+- Re-saving the same symbol later the same day only moves `price_low`
+  down or `price_high` up — never a duplicate row, and a later save
+  never overwrites a more extreme value already captured that day.
+  (This applies even to manually-edited prices.)
 
 ## Automatic daily saving
 
-`api/cron-daily-save.js` re-fetches today's low for every symbol
-you've ever saved, and upserts it the same way. `vercel.json` schedules
-it via Vercel Cron:
+`api/cron-daily-save.js` re-fetches today's low/high for every symbol
+you've ever saved, and upserts them the same way. `vercel.json`
+schedules it via Vercel Cron:
 
 ```json
 { "path": "/api/cron-daily-save", "schedule": "45 10 * * 1-5" }
@@ -68,11 +68,11 @@ functions per deployment, and treats every file directly inside `/api`
 as one, even plain helpers with no route of their own.
 
 - `lib/psx.js` — `getStockPrice()`, `getStockPriceWithTrend()` (+
-  sparkline history), `getDailyLowPrice()` (today's lowest intraday
-  price)
+  sparkline history), `getDailyRange()` (today's lowest and highest
+  intraday price)
 - `lib/db.js` — shared database connection + schema/migration logic
-- `api/save-price.js` — upserts today's low price for a symbol (accepts an edited price from the popup; open to anyone)
-- `api/preview-price.js` — fetches today's price without saving, to prefill the editable popup
+- `api/save-price.js` — upserts today's low/high price for a symbol (accepts edited values from the popup; open to anyone)
+- `api/preview-price.js` — fetches today's low/high without saving, to prefill the editable popup
 - `api/delete-data.js` — deletes saved rows within a date range (open to anyone)
 - `api/cron-daily-save.js` — same upsert, run automatically for every saved symbol
 - `api/recent.js` — the last 15 distinct symbols saved, with a live price and trend

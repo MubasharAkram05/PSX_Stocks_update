@@ -1,6 +1,5 @@
 /* styles/nav.css
-   Shared top navigation bar — used on every page (index and the two
-   calculators).
+   Shared top navigation bar — used on every page.
    file means the nav only needs to be updated in one place. */
 
 .topnav {
@@ -16,8 +15,10 @@
   max-width: 900px;
   margin: 0 auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 6px 16px;
   padding: 12px 20px;
 }
 .topnav-brand {
@@ -26,15 +27,22 @@
   text-decoration: none;
   font-size: 15px;
 }
+/* KSE-100 index — its own row below the header links, full width.
+   Collapses to nothing when empty (lookup failed or still loading). */
 .topnav-index {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px 12px;
   color: #94a3b8;
   font-size: 12.5px;
   font-weight: 600;
-  display: flex;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
+  overflow-x: auto;
 }
+.topnav-index:not(:empty) { display: flex; }
+.topnav-index:empty { display: none; }
 .topnav-index .points { color: #e2e8f0; }
 .topnav-index .dir.up { color: #4ade80; }
 .topnav-index .dir.down { color: #f87171; }
@@ -51,44 +59,4 @@
 .topnav-links > a:hover,
 .topnav-links > a.active {
   color: #4ade80;
-}
-.dropdown {
-  position: relative;
-}
-.dropbtn {
-  background: none;
-  border: none;
-  color: #e2e8f0;
-  font-size: 14px;
-  cursor: pointer;
-  font-family: inherit;
-  padding: 0;
-}
-.dropbtn:hover {
-  color: #4ade80;
-}
-.dropdown-content {
-  display: none;
-  position: absolute;
-  top: 130%;
-  left: 0;
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  min-width: 220px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-}
-.dropdown-content a {
-  display: block;
-  padding: 10px 14px;
-  color: #e2e8f0;
-  text-decoration: none;
-  font-size: 13.5px;
-}
-.dropdown-content a:hover {
-  background: #334155;
-}
-.dropdown.open .dropdown-content {
-  display: block;
 }

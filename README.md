@@ -48,14 +48,10 @@ Monday–Friday.
   card — both open to anyone, no login required. Removing only takes
   it off this list; it doesn't delete any saved price history. Click
   a card (not the ✕) to jump to the home page with it pre-filled.
-- `stock-profit-calculator.html` / `styles/stock-profit-calculator.css`
-  / `scripts/stock-profit-calculator.js`
-- `mutual-fund-calculator.html` / `styles/mutual-fund-calculator.css`
-  / `scripts/mutual-fund-calculator.js`
 
 **Shared across every page:**
-- `styles/nav.css` / `scripts/nav.js` — nav bar, Calculators dropdown,
-  and the KSE-100 index shown in the header
+- `styles/nav.css` / `scripts/nav.js` — nav bar and the KSE-100 index
+  shown below it
 - `scripts/sparkline.js` — sparkline SVG builder for Recently Added
 
 **Backend (Vercel serverless functions):**

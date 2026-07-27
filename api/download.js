@@ -8,6 +8,17 @@ const { pool } = require('../lib/db');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 
+// pg returns DATE columns as JS Date objects (midnight UTC), not
+// strings — String(date) calls Date.prototype.toString(), which has
+// no "T" to split on and instead prints the full verbose form
+// ("Mon Jul 27 2026 00:00:00 GMT+0000 (Coordinated Universal Time)").
+// Format explicitly instead, whether the driver hands back a Date or
+// an already-formatted string.
+function formatDate(value) {
+  if (value instanceof Date) return value.toISOString().split('T')[0];
+  return String(value).split('T')[0];
+}
+
 module.exports = async (req, res) => {
   const format = (req.query.format || 'excel').toLowerCase();
   const from = req.query.from || null;
@@ -73,7 +84,7 @@ module.exports = async (req, res) => {
         doc.addPage();
         y = 40;
       }
-      doc.text(String(r.date).split('T')[0], colX.date, y);
+      doc.text(formatDate(r.date), colX.date, y);
       doc.text(r.symbol, colX.symbol, y);
       doc.text(String(r.price), colX.price, y);
       y += 18;
@@ -93,7 +104,7 @@ module.exports = async (req, res) => {
   ];
   rows.forEach((r) =>
     sheet.addRow({
-      date: String(r.date).split('T')[0],
+      date: formatDate(r.date),
       symbol: r.symbol,
       price: Number(r.price),
     })

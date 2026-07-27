@@ -14,6 +14,7 @@
     <div class="topnav-links">
       <a href="/">Home</a>
       <a href="/stocks.html" class="active">Stocks</a>
+      <a href="/recently-added.html">Recently Added</a>
     </div>
   </div>
   <div class="topnav-index" id="topnavIndex"></div>
@@ -37,8 +38,9 @@
       <option value="engineering">Engineering</option>
       <option value="steel">Steel</option>
       <option value="bank">Bank</option>
-      <option value="other" selected>Other</option>
+      <option value="custom" selected>Custom…</option>
     </select>
+    <input id="customSector" placeholder="Sector name" autocomplete="off" />
     <button id="addStockBtn">Add Stock</button>
   </div>
   <div id="addStatus" class="status"></div>

@@ -1,12 +1,11 @@
 // scripts/tracker.js
 // Logic specific to index.html: saving a price (via an editable
-// confirmation popup), the Recently Added list, downloads with a
-// date filter, and removing saved data within a date range.
+// confirmation popup), downloads with a date filter, and removing
+// saved data within a date range.
 
 const input = document.getElementById('symbol');
 const btn = document.getElementById('saveBtn');
 const status = document.getElementById('status');
-const recentList = document.getElementById('recentList');
 const downloadFrom = document.getElementById('downloadFrom');
 const downloadTo = document.getElementById('downloadTo');
 const downloadExcelBtn = document.getElementById('downloadExcelBtn');
@@ -84,7 +83,6 @@ confirmSaveBtn.addEventListener('click', async () => {
     status.className = 'ok';
     input.value = '';
     closeConfirm();
-    loadRecent();
   } catch (err) {
     status.textContent = err.message;
     status.className = 'err';
@@ -92,41 +90,6 @@ confirmSaveBtn.addEventListener('click', async () => {
     confirmSaveBtn.disabled = false;
   }
 });
-
-function renderList(el, items, emptyText) {
-  el.innerHTML = '';
-  if (!items || items.length === 0) {
-    const li = document.createElement('li');
-    li.className = 'placeholder';
-    li.textContent = emptyText;
-    el.appendChild(li);
-    return;
-  }
-  items.forEach((item) => {
-    const li = document.createElement('li');
-    const priceClass = item.direction === 'down' ? 'price down' : item.direction === 'up' ? 'price up' : 'price';
-    li.innerHTML = `
-      <span class="sym">${item.symbol}</span>
-      <span class="${priceClass}">Rs. ${item.price}</span>
-      ${sparklineSvg(item.trend, item.direction, { w: 30, h: 16 })}
-    `;
-    li.addEventListener('click', () => {
-      input.value = item.symbol;
-      input.focus();
-    });
-    el.appendChild(li);
-  });
-}
-
-async function loadRecent() {
-  try {
-    const res = await fetch('/api/recent');
-    const data = await res.json();
-    renderList(recentList, data.recent, 'Nothing saved yet.');
-  } catch {
-    renderList(recentList, [], 'Nothing saved yet.');
-  }
-}
 
 function updateDownloadLinks() {
   const params = new URLSearchParams();
@@ -170,7 +133,6 @@ async function removeData() {
 
     removeStatus.textContent = `Deleted ${data.deleted} row(s).`;
     removeStatus.className = 'ok';
-    loadRecent();
   } catch (err) {
     removeStatus.textContent = err.message;
     removeStatus.className = 'err';
@@ -186,5 +148,3 @@ const prefill = urlParams.get('symbol');
 if (prefill) {
   input.value = prefill.toUpperCase();
 }
-
-loadRecent();

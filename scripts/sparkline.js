@@ -1,7 +1,7 @@
 // scripts/sparkline.js
 // Shared helper: builds a tiny inline SVG line chart from a price
 // trend array. Green if trending up, red if down, gray if flat/
-// unknown. Used by tracker.js for the Recently Added list.
+// unknown. Used on the Stocks and Recently Added pages.
 
 function sparklineSvg(trend, direction, size) {
   size = size || { w: 56, h: 24 };

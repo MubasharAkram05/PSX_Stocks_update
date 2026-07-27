@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Recently Added — PSX Tools</title>
+<link rel="stylesheet" href="/styles/nav.css" />
+<link rel="stylesheet" href="/styles/recently-added.css" />
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="topnav-brand">PSX Tools</a>
+    <div class="topnav-links">
+      <a href="/">Home</a>
+      <a href="/stocks.html">Stocks</a>
+      <a href="/recently-added.html" class="active">Recently Added</a>
+    </div>
+  </div>
+  <div class="topnav-index" id="topnavIndex"></div>
+</nav>
+
+<div class="page">
+  <h1>Recently Added</h1>
+  <p class="sub">The last 15 stocks you've saved a price for, with a live price and trend. Click one to jump to the tracker with it pre-filled.</p>
+
+  <ul class="stock-list" id="recentList">
+    <li class="placeholder">Loading...</li>
+  </ul>
+</div>
+
+<script src="/scripts/nav.js"></script>
+<script src="/scripts/sparkline.js"></script>
+<script src="/scripts/recently-added.js"></script>
+</body>
+</html>

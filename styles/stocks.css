@@ -41,8 +41,8 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
   background: #1e293b;
   color: #e2e8f0;
   font-size: 14px;
-  text-transform: uppercase;
 }
+.add-form input#addSymbol { text-transform: uppercase; }
 .add-form select {
   background: #1e293b;
   border: 1px solid #334155;

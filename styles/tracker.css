@@ -1,7 +1,6 @@
 /* styles/tracker.css
-   Styles specific to index.html: the Save Price card, the Recently
-   Added / Suggestions side panels, and the market index bar at the
-   bottom. Nav bar styles live in nav.css. */
+   Styles specific to index.html: the Save Price card and the market
+   index bar at the bottom. Nav bar styles live in nav.css. */
 
 :root { color-scheme: light; }
 
@@ -19,30 +18,11 @@ body {
 
 .topnav { margin: 0 -20px 40px; }
 
-/* Mobile-first: everything stacks in one column.
-   card first, then recently-added, then suggestions. */
 .layout {
   display: flex;
   flex-direction: column;
-  gap: 20px;
   width: 100%;
   max-width: 480px;
-}
-.layout .card { order: 1; }
-.layout #recentPanel { order: 2; }
-
-/* Laptop / tablet and up: two columns side by side —
-   Recently Added (left, narrower) / card (right, wider) */
-@media (min-width: 900px) {
-  .layout {
-    flex-direction: row;
-    align-items: flex-start;
-    max-width: 760px;
-    justify-content: center;
-  }
-  .layout .card { order: 2; }
-  .layout #recentPanel { order: 1; }
-  .side-panel { width: 180px; flex-shrink: 0; }
 }
 
 .card {
@@ -54,18 +34,8 @@ body {
   box-sizing: border-box;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
-.panel {
-  background: #1e293b;
-  border-radius: 16px;
-  padding: 20px;
-  width: 100%;
-  max-width: 260px;
-  box-sizing: border-box;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
 
 h1 { font-size: 20px; margin-bottom: 4px; }
-h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin: 0 0 12px; }
 p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
 input {
   width: 100%;
@@ -117,26 +87,6 @@ button, a.btn {
 .ok { color: #4ade80; }
 .err { color: #f87171; }
 hr { border: none; border-top: 1px solid #334155; margin: 24px 0; }
-
-.stock-list { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow-y: auto; }
-.stock-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 6px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12.5px;
-}
-.stock-list li:hover { background: #334155; }
-.stock-list .sym { font-weight: 600; flex-shrink: 0; }
-.stock-list .price { color: #94a3b8; margin-left: auto; white-space: nowrap; }
-.stock-list .price.down { color: #f87171; }
-.stock-list .price.up { color: #4ade80; }
-.stock-list .sparkline { flex-shrink: 0; }
-.stock-list .placeholder { color: #64748b; cursor: default; }
-.stock-list .placeholder:hover { background: none; }
 
 .danger-btn { background: #dc2626; color: #fff; }
 .danger-btn:hover:not(:disabled) { background: #b91c1c; }

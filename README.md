@@ -36,23 +36,29 @@ Monday–Friday.
 
 **Pages:**
 - `index.html` / `styles/tracker.css` / `scripts/tracker.js` — Save
-  Price card (with editable confirmation popup), Recently Added
-  (narrow) on the left on wider screens, download buttons with an
-  optional date-range filter, and a Remove Saved Data tool (same
-  date-range filter, permanent — open to anyone, no login required).
+  Price card (with editable confirmation popup), download buttons
+  with an optional date-range filter, and a Remove Saved Data tool
+  (same date-range filter, permanent — open to anyone, no login
+  required).
 - `stocks.html` / `styles/stocks.css` / `scripts/stocks.js` — every
   stock you've added, grouped into labeled sector rows (Petroleum,
   Fertilizer, Medicine, Bank, Cement, Tech, Power, Chemical,
-  Automobile, Engineering, Steel, Other). An **Add Stock** form
-  (symbol + sector) at the top, and a **✕ remove** button on each
-  card — both open to anyone, no login required. Removing only takes
-  it off this list; it doesn't delete any saved price history. Click
-  a card (not the ✕) to jump to the home page with it pre-filled.
+  Automobile, Engineering, Steel, or a custom sector you type in). An
+  **Add Stock** form (symbol + sector) at the top, and a **✕ remove**
+  button on each card — both open to anyone, no login required.
+  Removing only takes it off this list; it doesn't delete any saved
+  price history. Click a card (not the ✕) to jump to the home page
+  with it pre-filled.
+- `recently-added.html` / `styles/recently-added.css` /
+  `scripts/recently-added.js` — the last 15 symbols you've saved a
+  price for, with a live price and trend. Click a row to jump to the
+  home page with it pre-filled.
 
 **Shared across every page:**
 - `styles/nav.css` / `scripts/nav.js` — nav bar and the KSE-100 index
   shown below it
-- `scripts/sparkline.js` — sparkline SVG builder for Recently Added
+- `scripts/sparkline.js` — sparkline SVG builder for the Stocks and
+  Recently Added pages
 
 **Backend (Vercel serverless functions):**
 

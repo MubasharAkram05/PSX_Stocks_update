@@ -8,10 +8,23 @@
 
 const { pool, ensureSchema } = require('../lib/db');
 
-const VALID_SECTORS = [
+// Sectors offered as dropdown presets — kept as-is (they have curated
+// display labels on the frontend). Anything else is a custom,
+// free-typed sector name and gets sanitized instead.
+const PRESET_SECTORS = [
   'petroleum', 'fertilizer', 'pharma', 'cement', 'tech',
-  'power', 'chemical', 'auto', 'engineering', 'steel', 'bank', 'other',
+  'power', 'chemical', 'auto', 'engineering', 'steel', 'bank',
 ];
+
+function sanitizeCustomSector(raw) {
+  const cleaned = String(raw || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s&-]/g, '')
+    .replace(/\s+/g, ' ')
+    .slice(0, 30);
+  return cleaned || 'other';
+}
 
 module.exports = async (req, res) => {
   try {
@@ -23,7 +36,7 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Symbol is required.' });
       }
       const sym = symbol.trim().toUpperCase();
-      const sec = VALID_SECTORS.includes(sector) ? sector : 'other';
+      const sec = PRESET_SECTORS.includes(sector) ? sector : sanitizeCustomSector(sector);
 
       await pool.query(
         `INSERT INTO stock_sectors (symbol, sector) VALUES ($1, $2)

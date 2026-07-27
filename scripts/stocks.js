@@ -5,6 +5,7 @@
 const container = document.getElementById('sectorGroups');
 const addSymbolInput = document.getElementById('addSymbol');
 const addSectorSelect = document.getElementById('addSector');
+const customSectorInput = document.getElementById('customSector');
 const addStockBtn = document.getElementById('addStockBtn');
 const addStatus = document.getElementById('addStatus');
 
@@ -15,12 +16,22 @@ const SECTOR_LABELS = {
   bank: 'Bank', other: 'Other',
 };
 
-// Preferred display order; any sector not listed here (shouldn't
-// happen, but just in case) is appended at the end.
+function labelFor(key) {
+  return SECTOR_LABELS[key] || key.replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// Preferred display order; any sector not listed here (custom ones,
+// or the fallback "other") is appended at the end.
 const SECTOR_ORDER = [
   'petroleum', 'fertilizer', 'pharma', 'bank', 'cement', 'tech',
-  'power', 'chemical', 'auto', 'engineering', 'steel', 'other',
+  'power', 'chemical', 'auto', 'engineering', 'steel',
 ];
+
+function toggleCustomSectorInput() {
+  customSectorInput.style.display = addSectorSelect.value === 'custom' ? '' : 'none';
+}
+addSectorSelect.addEventListener('change', toggleCustomSectorInput);
+toggleCustomSectorInput();
 
 function groupBySector(stocks) {
   const groups = {};
@@ -52,7 +63,7 @@ function renderGroups(stocks) {
 
     const heading = document.createElement('div');
     heading.className = 'sector-heading';
-    heading.innerHTML = `<span class="line"></span><span class="label">${SECTOR_LABELS[key] || key}</span><span class="line"></span>`;
+    heading.innerHTML = `<span class="line"></span><span class="label">${labelFor(key)}</span><span class="line"></span>`;
     section.appendChild(heading);
 
     const row = document.createElement('div');
@@ -99,6 +110,14 @@ async function addStock() {
   const symbol = addSymbolInput.value.trim();
   if (!symbol) return;
 
+  const isCustom = addSectorSelect.value === 'custom';
+  const sector = isCustom ? customSectorInput.value.trim() : addSectorSelect.value;
+  if (isCustom && !sector) {
+    addStatus.textContent = 'Please enter a sector name.';
+    addStatus.className = 'status err';
+    return;
+  }
+
   addStockBtn.disabled = true;
   addStatus.textContent = 'Adding...';
   addStatus.className = 'status';
@@ -107,12 +126,13 @@ async function addStock() {
     const res = await fetch('/api/manage-stocks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ symbol, sector: addSectorSelect.value }),
+      body: JSON.stringify({ symbol, sector }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Could not add that stock.');
 
     addSymbolInput.value = '';
+    customSectorInput.value = '';
     addStatus.textContent = '';
     loadStocks();
   } catch (err) {

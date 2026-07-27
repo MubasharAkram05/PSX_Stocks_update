@@ -39,25 +39,25 @@ Monday–Friday.
   Price card (with editable confirmation popup), download buttons
   with an optional date-range filter, and a Remove Saved Data tool
   (same date-range filter, permanent — open to anyone, no login
-  required).
+  required). Saving a price for a symbol that isn't tracked on the
+  Stocks page yet adds it there automatically, with a sector guessed
+  from a static lookup — no separate Add Stock step needed.
 - `stocks.html` / `styles/stocks.css` / `scripts/stocks.js` — every
-  stock you've added, grouped into labeled sector rows (Petroleum,
+  stock that's been saved (via Save Price, the daily cron, or the
+  **Add Stock** form here) grouped into labeled sector rows (Petroleum,
   Fertilizer, Medicine, Bank, Cement, Tech, Power, Chemical,
-  Automobile, Engineering, Steel, or a custom sector you type in). An
-  **Add Stock** form (symbol + sector) at the top, a **Save All**
-  button that saves today's low/high for every symbol ever saved on
-  demand (same as the daily cron), and a **✕ remove** button on each
-  card — all open to anyone, no login required. Removing only takes
-  it off this list; it doesn't delete any saved price history. Click
-  a card (not the ✕) to jump to the home page with it pre-filled.
+  Automobile, Engineering, Steel, or a custom sector you type in). A
+  **Save All** button saves today's low/high for every symbol ever
+  saved on demand (same as the daily cron), and a **✕ remove** button
+  on each card takes it off this list — both open to anyone, no login
+  required. Removing doesn't delete any saved price history. Click a
+  card (not the ✕) to jump to the home page with it pre-filled.
 - `recently-added.html` / `styles/recently-added.css` /
   `scripts/recently-added.js` — up to 15 symbols you've saved a price
-  for, with a live price and trend. **↑/↓** reorders a row and **✕**
-  removes it from this list (open to anyone, no login required;
-  doesn't touch saved price history). **Save All** re-fetches and
-  saves today's low/high for every symbol ever saved, on demand.
-  Click a row (not the buttons) to jump to the home page with it
-  pre-filled.
+  for, with a live price and trend, **↑/↓** reorder, and **✕** remove.
+  Superseded by the Stocks page now auto-listing every saved symbol,
+  so it's no longer linked from the nav — still reachable directly at
+  `/recently-added.html`.
 
 **Shared across every page:**
 - `styles/nav.css` / `scripts/nav.js` — nav bar and the KSE-100 index

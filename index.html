@@ -24,7 +24,7 @@
 
   <div class="card">
     <h1>PSX Daily Price Tracker</h1>
-    <p class="sub">Enter a PSX symbol (e.g. ENGRO, MEBL, LUCK). The current price and today's date will be saved.</p>
+    <p class="sub">Enter a PSX symbol (e.g. ENGRO, MEBL, LUCK). Today's low and high price will be saved.</p>
     <input id="symbol" placeholder="e.g. ENGRO" autocomplete="off" />
     <button id="saveBtn">Save Price</button>
     <div id="status"></div>
@@ -56,8 +56,10 @@
   <div class="modal">
     <div class="modal-title">Confirm Save</div>
     <p class="modal-sub" id="confirmSymbolLine"></p>
-    <label class="modal-label">Price (Rs.)</label>
-    <input type="number" id="confirmPriceInput" step="0.01" />
+    <label class="modal-label">Low Price (Rs.)</label>
+    <input type="number" id="confirmLowInput" step="0.01" />
+    <label class="modal-label">High Price (Rs.)</label>
+    <input type="number" id="confirmHighInput" step="0.01" />
     <div class="modal-actions">
       <button id="confirmCancelBtn" class="secondary-btn">Cancel</button>
       <button id="confirmSaveBtn">Confirm &amp; Save</button>

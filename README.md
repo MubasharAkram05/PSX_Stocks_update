@@ -48,10 +48,12 @@ Monday–Friday.
   Fertilizer, Medicine, Bank, Cement, Tech, Power, Chemical,
   Automobile, Engineering, Steel, or a custom sector you type in). A
   **Save All** button saves today's low/high for every symbol ever
-  saved on demand (same as the daily cron), and a **✕ remove** button
-  on each card takes it off this list — both open to anyone, no login
-  required. Removing doesn't delete any saved price history. Click a
-  card (not the ✕) to jump to the home page with it pre-filled.
+  saved on demand (same as the daily cron). An **Edit** toggle reveals
+  **↑/↓** on each stock (reorder within its sector) and each sector
+  heading (reorder the whole group), plus **✕** to remove a stock from
+  this list — all open to anyone, no login required. Removing doesn't
+  delete any saved price history. Click a card (not the buttons) to
+  jump to the home page with it pre-filled.
 
 **Shared across every page:**
 - `styles/nav.css` / `scripts/nav.js` — nav bar and the KSE-100 index
@@ -74,8 +76,9 @@ as one, even plain helpers with no route of their own.
 - `api/preview-price.js` — fetches today's low/high without saving, to prefill the editable popup
 - `api/delete-data.js` — deletes saved rows within a date range (open to anyone)
 - `api/cron-daily-save.js` — same upsert, run automatically for every saved symbol
-- `api/stocks.js` — every stock in `stock_sectors`, tagged with its sector
-- `api/manage-stocks.js` — add/remove stocks and set their sector (open to anyone)
+- `lib/stock-order.js` — computes the Stocks page's display order (which sector shows first, and each stock's position within it), used by both `api/stocks.js` and the reorder actions below
+- `api/stocks.js` — every stock in `stock_sectors`, in display order, tagged with its sector
+- `api/manage-stocks.js` — add/remove a stock, set its sector, or reorder a stock/sector (open to anyone)
 - `api/psx-index.js` — best-effort KSE-100 index level for the header
 - `api/download.js` — Excel/PDF export, optional `?from=&to=` date filter
 

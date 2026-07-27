@@ -2,7 +2,9 @@
 // Called by the frontend at GET /api/stocks
 // Returns every symbol in the stock_sectors table (added via the
 // Stocks page's Add Stock form, or carried over from earlier saves)
-// with a live price + trend, grouped by sector on the frontend.
+// with a live price + trend, in their current display order — see
+// lib/stock-order.js — along with the current sector order, so the
+// frontend doesn't have to guess either.
 // Falls back to the last saved price/date if the live lookup fails
 // for a symbol, rather than dropping it — a burst of PSX rate-limiting
 // (e.g. right after clicking Save All) would otherwise make every
@@ -14,19 +16,20 @@
 const { pool, ensureSchema } = require('../lib/db');
 const { getStockPriceWithTrend } = require('../lib/psx');
 const { mapWithConcurrency } = require('../lib/concurrency');
+const { getOrderedStocks } = require('../lib/stock-order');
 
 const CONCURRENCY = 5;
 
 module.exports = async (req, res) => {
   try {
     await ensureSchema();
-    const dbRes = await pool.query(`SELECT symbol, sector FROM stock_sectors ORDER BY symbol`);
+    const { rows, sectorOrder } = await getOrderedStocks();
 
-    if (dbRes.rows.length === 0) {
-      return res.status(200).json({ stocks: [] });
+    if (rows.length === 0) {
+      return res.status(200).json({ stocks: [], sectorOrder: [] });
     }
 
-    const symbols = dbRes.rows.map((r) => r.symbol);
+    const symbols = rows.map((r) => r.symbol);
     const storedRes = await pool.query(
       `SELECT DISTINCT ON (symbol) symbol, price_low, date
        FROM psx_prices WHERE symbol = ANY($1)
@@ -35,7 +38,7 @@ module.exports = async (req, res) => {
     );
     const storedMap = new Map(storedRes.rows.map((r) => [r.symbol, r]));
 
-    const results = await mapWithConcurrency(dbRes.rows, CONCURRENCY, async (row) => {
+    const results = await mapWithConcurrency(rows, CONCURRENCY, async (row) => {
       try {
         const live = await getStockPriceWithTrend(row.symbol);
         return { ...live, sector: row.sector };
@@ -53,9 +56,9 @@ module.exports = async (req, res) => {
       }
     });
 
-    res.status(200).json({ stocks: results.filter(Boolean) });
+    res.status(200).json({ stocks: results.filter(Boolean), sectorOrder });
   } catch (err) {
     console.error(err);
-    res.status(200).json({ stocks: [] });
+    res.status(200).json({ stocks: [], sectorOrder: [] });
   }
 };

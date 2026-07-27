@@ -50,9 +50,13 @@ Monday–Friday.
   price history. Click a card (not the ✕) to jump to the home page
   with it pre-filled.
 - `recently-added.html` / `styles/recently-added.css` /
-  `scripts/recently-added.js` — the last 15 symbols you've saved a
-  price for, with a live price and trend. Click a row to jump to the
-  home page with it pre-filled.
+  `scripts/recently-added.js` — up to 15 symbols you've saved a price
+  for, with a live price and trend. **↑/↓** reorders a row and **✕**
+  removes it from this list (open to anyone, no login required;
+  doesn't touch saved price history). **Save All** re-fetches and
+  saves today's low/high for every symbol ever saved, on demand.
+  Click a row (not the buttons) to jump to the home page with it
+  pre-filled.
 
 **Shared across every page:**
 - `styles/nav.css` / `scripts/nav.js` — nav bar and the KSE-100 index
@@ -71,11 +75,13 @@ as one, even plain helpers with no route of their own.
   sparkline history), `getDailyRange()` (today's lowest and highest
   intraday price)
 - `lib/db.js` — shared database connection + schema/migration logic
+- `lib/recent-order.js` — computes the Recently Added page's symbol order (default: last-saved-first, overridden by any manual reordering/removal)
 - `api/save-price.js` — upserts today's low/high price for a symbol (accepts edited values from the popup; open to anyone)
 - `api/preview-price.js` — fetches today's low/high without saving, to prefill the editable popup
 - `api/delete-data.js` — deletes saved rows within a date range (open to anyone)
 - `api/cron-daily-save.js` — same upsert, run automatically for every saved symbol
-- `api/recent.js` — the last 15 distinct symbols saved, with a live price and trend
+- `api/recent.js` — up to 15 symbols for the Recently Added page (in their current manual/default order), with a live price and trend
+- `api/manage-recent.js` — reorder or remove a symbol from the Recently Added page (open to anyone)
 - `api/stocks.js` — every stock in `stock_sectors`, tagged with its sector
 - `api/manage-stocks.js` — add/remove stocks and set their sector (open to anyone)
 - `api/psx-index.js` — best-effort KSE-100 index level for the header

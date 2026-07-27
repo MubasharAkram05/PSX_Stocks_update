@@ -4,7 +4,9 @@
 // the tracker with that symbol pre-filled. Save All re-fetches and
 // saves today's low/high for every symbol ever saved, same as the
 // automatic daily cron (api/cron-daily-save.js) — just triggered
-// on demand instead of waiting for it.
+// on demand instead of waiting for it. The ↑/↓/✕ buttons on each row
+// reorder or remove it from this list (api/manage-recent.js) without
+// touching any saved price history.
 
 const recentList = document.getElementById('recentList');
 const saveAllBtn = document.getElementById('saveAllBtn');
@@ -19,19 +21,68 @@ function renderList(items) {
     recentList.appendChild(li);
     return;
   }
-  items.forEach((item) => {
+  items.forEach((item, idx) => {
     const li = document.createElement('li');
     const priceClass = item.direction === 'down' ? 'price down' : item.direction === 'up' ? 'price up' : 'price';
     li.innerHTML = `
       <span class="sym">${item.symbol}</span>
       ${sparklineSvg(item.trend, item.direction, { w: 40, h: 20 })}
       <span class="${priceClass}">Rs. ${item.price}</span>
+      <div class="row-actions">
+        <button class="icon-btn" data-action="up" title="Move up" ${idx === 0 ? 'disabled' : ''}>↑</button>
+        <button class="icon-btn" data-action="down" title="Move down" ${idx === items.length - 1 ? 'disabled' : ''}>↓</button>
+        <button class="icon-btn remove" data-action="remove" title="Remove ${item.symbol}">✕</button>
+      </div>
     `;
-    li.addEventListener('click', () => {
+    li.addEventListener('click', (e) => {
+      if (e.target.closest('.row-actions')) return;
       window.location.href = `/?symbol=${encodeURIComponent(item.symbol)}`;
+    });
+    li.querySelector('[data-action="up"]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      moveItem(item.symbol, 'up');
+    });
+    li.querySelector('[data-action="down"]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      moveItem(item.symbol, 'down');
+    });
+    li.querySelector('[data-action="remove"]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeItem(item.symbol);
     });
     recentList.appendChild(li);
   });
+}
+
+async function moveItem(symbol, direction) {
+  try {
+    const res = await fetch('/api/manage-recent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'move', symbol, direction }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not reorder.');
+    loadRecent();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function removeItem(symbol) {
+  if (!confirm(`Remove ${symbol} from Recently Added?`)) return;
+  try {
+    const res = await fetch('/api/manage-recent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'hide', symbol }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not remove that symbol.');
+    loadRecent();
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
 async function loadRecent() {

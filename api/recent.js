@@ -1,39 +1,45 @@
 // api/recent.js
 // Called by the frontend at GET /api/recent
-// Returns the last 15 distinct symbols saved (most recently saved
-// first), with a live price/trend/direction for each — same live
-// lookup used everywhere else in the app. Falls back to the stored
-// (saved) price/date if the live lookup fails for a symbol.
+// Returns up to 15 symbols for the Recently Added page — last-saved
+// first by default, but reordered/filtered by any manual changes made
+// via api/manage-recent.js (see lib/recent-order.js) — with a live
+// price/trend/direction for each. Falls back to the stored (saved)
+// price/date if the live lookup fails for a symbol.
 
 const { pool } = require('../lib/db');
 const { getStockPriceWithTrend } = require('../lib/psx');
+const { getOrderedRecentSymbols } = require('../lib/recent-order');
 
 module.exports = async (req, res) => {
   try {
-    const dbRes = await pool.query(`
-      SELECT symbol, price_low, date FROM (
-        SELECT DISTINCT ON (symbol) symbol, price_low, date, id
-        FROM psx_prices
-        ORDER BY symbol, id DESC
-      ) t
-      ORDER BY id DESC
-      LIMIT 15
-    `);
+    const symbols = await getOrderedRecentSymbols(15);
+    if (symbols.length === 0) {
+      return res.status(200).json({ recent: [] });
+    }
+
+    const dbRes = await pool.query(
+      `SELECT DISTINCT ON (symbol) symbol, price_low, date
+       FROM psx_prices WHERE symbol = ANY($1)
+       ORDER BY symbol, id DESC`,
+      [symbols]
+    );
+    const storedMap = new Map(dbRes.rows.map((r) => [r.symbol, r]));
 
     const recent = await Promise.all(
-      dbRes.rows.map(async (row) => {
-        const storedPrice = Number(row.price_low);
+      symbols.map(async (symbol) => {
+        const stored = storedMap.get(symbol);
+        const storedPrice = stored ? Number(stored.price_low) : null;
         try {
-          const live = await getStockPriceWithTrend(row.symbol);
+          const live = await getStockPriceWithTrend(symbol);
           return {
-            symbol: row.symbol,
+            symbol,
             price: live.price,
             date: live.date,
             trend: live.trend,
             direction: live.direction,
           };
         } catch {
-          return { symbol: row.symbol, price: storedPrice, date: row.date, trend: [], direction: 'flat' };
+          return { symbol, price: storedPrice, date: stored ? stored.date : null, trend: [], direction: 'flat' };
         }
       })
     );

@@ -66,6 +66,7 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
 .status.err { color: #f87171; }
 .status.ok { color: #4ade80; }
 
+.page-actions { display: flex; gap: 10px; margin-bottom: 8px; }
 .save-all-btn {
   background: #22c55e;
   color: #052e16;
@@ -75,9 +76,20 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  margin-bottom: 8px;
 }
 .save-all-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.edit-btn {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+.edit-btn:hover { border-color: #4ade80; }
+.edit-btn.active { background: #4ade80; color: #052e16; border-color: #4ade80; }
 
 .sector-group { margin-bottom: 32px; }
 .sector-heading {
@@ -95,6 +107,7 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
   color: #4ade80;
   white-space: nowrap;
 }
+.sector-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
 .sector-row {
   display: flex;
@@ -111,6 +124,7 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
   color: #e2e8f0;
   cursor: pointer;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   transition: border-color 0.15s, transform 0.1s;
@@ -124,10 +138,12 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
 .stock-card .info { display: flex; flex-direction: column; flex: 1; }
 .stock-card .sym { font-weight: 700; font-size: 14px; }
 .stock-card .price { color: #94a3b8; font-size: 12.5px; margin-top: 2px; }
-.stock-card .remove-btn {
+.card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.icon-btn {
   flex-shrink: 0;
   width: 22px;
   height: 22px;
+  padding: 0;
   border-radius: 6px;
   border: none;
   background: #334155;
@@ -136,4 +152,6 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
   cursor: pointer;
   line-height: 1;
 }
-.stock-card .remove-btn:hover { background: #7f1d1d; color: #fff; }
+.icon-btn:hover:not(:disabled) { background: #475569; color: #e2e8f0; }
+.icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.icon-btn.remove:hover:not(:disabled) { background: #7f1d1d; color: #fff; }

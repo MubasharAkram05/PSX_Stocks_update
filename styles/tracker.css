@@ -51,6 +51,7 @@ body {
   padding: 32px;
   width: 100%;
   max-width: 520px;
+  box-sizing: border-box;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 .panel {
@@ -59,6 +60,7 @@ body {
   padding: 20px;
   width: 100%;
   max-width: 260px;
+  box-sizing: border-box;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
@@ -95,6 +97,7 @@ button, a.btn {
 .date-filter { display: flex; gap: 10px; margin-bottom: 12px; }
 .date-filter label {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;

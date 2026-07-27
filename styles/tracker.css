@@ -119,3 +119,8 @@ hr { border: none; border-top: 1px solid #334155; margin: 24px 0; }
 .stock-list .sparkline { flex-shrink: 0; }
 .stock-list .placeholder { color: #64748b; cursor: default; }
 .stock-list .placeholder:hover { background: none; }
+
+@media (max-width: 420px) {
+  .card { padding: 22px 18px; }
+  .panel { padding: 18px; }
+}

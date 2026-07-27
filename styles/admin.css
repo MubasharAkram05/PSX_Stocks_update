@@ -106,3 +106,10 @@ hr { border: none; border-top: 1px solid #334155; margin: 24px 0; }
 .admin-stock-list button:hover { background: #475569; }
 .admin-stock-list .remove-btn { background: #7f1d1d; color: #fecaca; }
 .admin-stock-list .remove-btn:hover { background: #991b1b; }
+
+@media (max-width: 420px) {
+  .card { padding: 22px 18px; }
+  .admin-stock-list li { flex-wrap: wrap; gap: 6px 8px; }
+  .admin-stock-list .sym { flex-basis: 100%; }
+  .admin-stock-list button { flex: 1; padding: 6px 8px; }
+}

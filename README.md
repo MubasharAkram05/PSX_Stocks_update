@@ -69,7 +69,7 @@ as one, even plain helpers with no route of their own.
 - `api/preview-price.js` — fetches today's price without saving, to prefill the editable popup
 - `api/delete-data.js` — deletes saved rows within a date range (open to anyone)
 - `api/cron-daily-save.js` — same upsert, run automatically for every saved symbol
-- `api/recent.js` — the last 15 distinct symbols saved, with live trend
+- `api/recent.js` — the last 15 distinct symbols saved, with a live price and trend
 - `api/stocks.js` — every stock in `stock_sectors`, tagged with its sector
 - `api/manage-stocks.js` — add/remove stocks and set their sector (open to anyone)
 - `api/psx-index.js` — best-effort KSE-100 index level for the header

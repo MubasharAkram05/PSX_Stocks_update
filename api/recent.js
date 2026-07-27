@@ -1,11 +1,9 @@
 // api/recent.js
 // Called by the frontend at GET /api/recent
 // Returns the last 15 distinct symbols saved (most recently saved
-// first). The PRICE shown is the actual value stored in the database
-// (what you saved — today's low, deduplicated) — not a fresh live
-// lookup, so it always matches what "Save Price" confirmed. The
-// sparkline/direction still comes from a live trend fetch, purely for
-// the visual red/green trend line.
+// first), with a live price/trend/direction for each — same live
+// lookup used everywhere else in the app. Falls back to the stored
+// (saved) price/date if the live lookup fails for a symbol.
 
 const { pool } = require('../lib/db');
 const { getStockPriceWithTrend } = require('../lib/psx');
@@ -29,8 +27,8 @@ module.exports = async (req, res) => {
           const live = await getStockPriceWithTrend(row.symbol);
           return {
             symbol: row.symbol,
-            price: storedPrice,
-            date: row.date,
+            price: live.price,
+            date: live.date,
             trend: live.trend,
             direction: live.direction,
           };

@@ -9,6 +9,9 @@
 const { pool } = require('../lib/db');
 const { getStockPriceWithTrend } = require('../lib/psx');
 const { getOrderedRecentSymbols } = require('../lib/recent-order');
+const { mapWithConcurrency } = require('../lib/concurrency');
+
+const CONCURRENCY = 5;
 
 module.exports = async (req, res) => {
   try {
@@ -25,24 +28,22 @@ module.exports = async (req, res) => {
     );
     const storedMap = new Map(dbRes.rows.map((r) => [r.symbol, r]));
 
-    const recent = await Promise.all(
-      symbols.map(async (symbol) => {
-        const stored = storedMap.get(symbol);
-        const storedPrice = stored ? Number(stored.price_low) : null;
-        try {
-          const live = await getStockPriceWithTrend(symbol);
-          return {
-            symbol,
-            price: live.price,
-            date: live.date,
-            trend: live.trend,
-            direction: live.direction,
-          };
-        } catch {
-          return { symbol, price: storedPrice, date: stored ? stored.date : null, trend: [], direction: 'flat' };
-        }
-      })
-    );
+    const recent = await mapWithConcurrency(symbols, CONCURRENCY, async (symbol) => {
+      const stored = storedMap.get(symbol);
+      const storedPrice = stored ? Number(stored.price_low) : null;
+      try {
+        const live = await getStockPriceWithTrend(symbol);
+        return {
+          symbol,
+          price: live.price,
+          date: live.date,
+          trend: live.trend,
+          direction: live.direction,
+        };
+      } catch {
+        return { symbol, price: storedPrice, date: stored ? stored.date : null, trend: [], direction: 'flat' };
+      }
+    });
 
     res.status(200).json({ recent });
   } catch (err) {

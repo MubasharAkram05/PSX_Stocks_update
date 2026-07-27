@@ -44,11 +44,12 @@ Monday–Friday.
   stock you've added, grouped into labeled sector rows (Petroleum,
   Fertilizer, Medicine, Bank, Cement, Tech, Power, Chemical,
   Automobile, Engineering, Steel, or a custom sector you type in). An
-  **Add Stock** form (symbol + sector) at the top, and a **✕ remove**
-  button on each card — both open to anyone, no login required.
-  Removing only takes it off this list; it doesn't delete any saved
-  price history. Click a card (not the ✕) to jump to the home page
-  with it pre-filled.
+  **Add Stock** form (symbol + sector) at the top, a **Save All**
+  button that saves today's low/high for every symbol ever saved on
+  demand (same as the daily cron), and a **✕ remove** button on each
+  card — all open to anyone, no login required. Removing only takes
+  it off this list; it doesn't delete any saved price history. Click
+  a card (not the ✕) to jump to the home page with it pre-filled.
 - `recently-added.html` / `styles/recently-added.css` /
   `scripts/recently-added.js` — up to 15 symbols you've saved a price
   for, with a live price and trend. **↑/↓** reorders a row and **✕**

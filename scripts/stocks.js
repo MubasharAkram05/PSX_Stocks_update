@@ -1,6 +1,9 @@
 // scripts/stocks.js
 // Fetches every added stock, groups them into labeled sector rows,
-// and handles the Add Stock form + per-card Remove button.
+// and handles the Add Stock form + per-card Remove button. Save All
+// re-fetches and saves today's low/high for every symbol ever saved,
+// same as the automatic daily cron (api/cron-daily-save.js) — just
+// triggered on demand instead of waiting for it.
 
 const container = document.getElementById('sectorGroups');
 const addSymbolInput = document.getElementById('addSymbol');
@@ -8,6 +11,8 @@ const addSectorSelect = document.getElementById('addSector');
 const customSectorInput = document.getElementById('customSector');
 const addStockBtn = document.getElementById('addStockBtn');
 const addStatus = document.getElementById('addStatus');
+const saveAllBtn = document.getElementById('saveAllBtn');
+const saveAllStatus = document.getElementById('saveAllStatus');
 
 const SECTOR_LABELS = {
   petroleum: 'Petroleum', fertilizer: 'Fertilizer', pharma: 'Medicine',
@@ -160,5 +165,28 @@ async function removeStock(symbol) {
     alert(err.message);
   }
 }
+
+async function saveAll() {
+  saveAllBtn.disabled = true;
+  saveAllStatus.textContent = 'Saving all...';
+  saveAllStatus.className = 'status';
+
+  try {
+    const res = await fetch('/api/cron-daily-save');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+
+    const okCount = data.results.filter((r) => r.ok).length;
+    saveAllStatus.textContent = `Saved ${okCount} of ${data.count} stock(s).`;
+    saveAllStatus.className = 'status ok';
+    loadStocks();
+  } catch (err) {
+    saveAllStatus.textContent = err.message;
+    saveAllStatus.className = 'status err';
+  } finally {
+    saveAllBtn.disabled = false;
+  }
+}
+saveAllBtn.addEventListener('click', saveAll);
 
 loadStocks();

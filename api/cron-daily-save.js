@@ -1,8 +1,11 @@
 // api/cron-daily-save.js
 // Triggered automatically once a day by Vercel Cron (see vercel.json),
-// and on demand via the Save All button on the Stocks / Recently Added
-// pages. For every symbol that's ever been saved, fetches today's
-// low/high and upserts them — same "one row per symbol per day, most
+// and on demand via the Save All button on the Stocks / Short Term
+// pages. For every symbol that's ever been saved OR is currently
+// tracked on either the Stocks or Short Term page — a stock added via
+// Bulk Add has no price history yet, so it must still be included
+// here, or Save All would silently skip it forever — fetches today's
+// low/high and upserts them, same "one row per symbol per day, most
 // extreme values win" rule as manual saves via api/save-price.js.
 // Requests are throttled instead of all firing at once — PSX can
 // rate-limit a big burst of concurrent lookups, which then makes
@@ -18,7 +21,11 @@ module.exports = async (req, res) => {
   try {
     await ensureSchema();
 
-    const symbolsRes = await pool.query(`SELECT DISTINCT symbol FROM psx_prices`);
+    const symbolsRes = await pool.query(`
+      SELECT symbol FROM psx_prices
+      UNION
+      SELECT symbol FROM stock_sectors
+    `);
     const symbols = symbolsRes.rows.map((r) => r.symbol);
 
     const results = await mapWithConcurrency(symbols, CONCURRENCY, async (sym) => {

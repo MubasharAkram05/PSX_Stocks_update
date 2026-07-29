@@ -67,16 +67,32 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
 .status.ok { color: #4ade80; }
 
 .bulk-add-toggle {
-  background: none;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #1e293b;
+  border: 1px solid #334155;
   color: #4ade80;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  padding: 0;
+  padding: 8px 14px;
+  border-radius: 8px;
   margin-bottom: 16px;
+  transition: border-color 0.15s, background 0.15s;
 }
-.bulk-add-toggle:hover { text-decoration: underline; }
+.bulk-add-toggle::before {
+  content: '+';
+  font-size: 15px;
+  line-height: 1;
+}
+.bulk-add-toggle:hover { border-color: #4ade80; background: #24334a; }
+.bulk-add-toggle.active {
+  background: #4ade80;
+  color: #052e16;
+  border-color: #4ade80;
+}
+.bulk-add-toggle.active::before { content: '−'; }
 .bulk-add-panel {
   background: #1e293b;
   border: 1px solid #334155;

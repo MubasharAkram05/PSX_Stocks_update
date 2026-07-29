@@ -45,13 +45,17 @@ module.exports = async (req, res) => {
         const live = await getStockPriceWithTrend(row.symbol);
         return { ...live, sector: row.sector };
       } catch {
+        // Live lookup failed (rate limit, bad symbol, etc). Fall back
+        // to the last saved price if there is one; otherwise still
+        // show the card (a freshly Bulk/Add-ed symbol has no saved
+        // history yet) rather than silently dropping it from the
+        // page — the frontend shows "Price unavailable" for these.
         const stored = storedMap.get(row.symbol);
-        if (!stored) return null;
         return {
           symbol: row.symbol,
           sector: row.sector,
-          price: Number(stored.price_low),
-          date: stored.date,
+          price: stored ? Number(stored.price_low) : null,
+          date: stored ? stored.date : null,
           trend: [],
           direction: 'flat',
         };

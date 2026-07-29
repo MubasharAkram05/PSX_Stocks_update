@@ -28,6 +28,8 @@ const bulkAddPanel = document.getElementById('bulkAddPanel');
 const bulkAddInput = document.getElementById('bulkAddInput');
 const bulkAddBtn = document.getElementById('bulkAddBtn');
 const bulkAddStatus = document.getElementById('bulkAddStatus');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
 
 let editMode = false;
 let lastStocks = [];
@@ -37,17 +39,23 @@ const SECTOR_LABELS = {
   petroleum: 'Petroleum', fertilizer: 'Fertilizer', pharma: 'Medicine',
   cement: 'Cement', tech: 'Technology', power: 'Power', chemical: 'Chemical',
   auto: 'Automobile', engineering: 'Engineering', steel: 'Steel',
-  bank: 'Bank', other: 'Other',
+  bank: 'Bank', other: 'Other', 'short-term': 'Short Term',
 };
 
 function labelFor(key) {
   return SECTOR_LABELS[key] || key.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+// The Short Term page (short-term.html) has no sector dropdown at all
+// — everything added there goes in one "short-term" bucket, so these
+// elements simply won't exist on that page.
 function toggleCustomSectorInput() {
+  if (!addSectorSelect || !customSectorInput) return;
   customSectorInput.style.display = addSectorSelect.value === 'custom' ? '' : 'none';
 }
-addSectorSelect.addEventListener('change', toggleCustomSectorInput);
+if (addSectorSelect) {
+  addSectorSelect.addEventListener('change', toggleCustomSectorInput);
+}
 toggleCustomSectorInput();
 
 function groupBySector(stocks) {
@@ -103,11 +111,12 @@ function renderGroups(stocks, sectorOrder) {
     groups[key].forEach((item, stockIdx) => {
       const card = document.createElement('div');
       card.className = 'stock-card';
+      card.dataset.symbol = item.symbol;
       card.innerHTML = `
         ${sparklineSvg(item.trend, item.direction, { w: 36, h: 20 })}
         <div class="info">
           <span class="sym">${item.symbol}</span>
-          <span class="price">Rs. ${item.price}</span>
+          <span class="price">${item.price != null ? `Rs. ${item.price}` : 'Price unavailable'}</span>
         </div>
         ${editMode ? `
           <div class="card-actions">
@@ -141,7 +150,28 @@ function renderGroups(stocks, sectorOrder) {
     section.appendChild(row);
     container.appendChild(section);
   });
+
+  applySearchFilter();
 }
+
+// Filters the already-rendered cards by symbol substring — no
+// server round trip, since everything's already on the page. Hides a
+// sector group entirely once none of its cards match.
+function applySearchFilter() {
+  if (!searchInput) return;
+  const term = searchInput.value.trim().toUpperCase();
+  container.querySelectorAll('.sector-group').forEach((section) => {
+    let anyVisible = false;
+    section.querySelectorAll('.stock-card').forEach((card) => {
+      const match = !term || card.dataset.symbol.includes(term);
+      card.style.display = match ? '' : 'none';
+      if (match) anyVisible = true;
+    });
+    section.style.display = anyVisible ? '' : 'none';
+  });
+}
+if (searchInput) searchInput.addEventListener('input', applySearchFilter);
+if (searchBtn) searchBtn.addEventListener('click', applySearchFilter);
 
 async function loadStocks() {
   try {
@@ -166,8 +196,8 @@ async function addStock() {
   const symbol = addSymbolInput.value.trim();
   if (!symbol) return;
 
-  const isCustom = addSectorSelect.value === 'custom';
-  const sector = isCustom ? customSectorInput.value.trim() : addSectorSelect.value;
+  const isCustom = addSectorSelect && addSectorSelect.value === 'custom';
+  const sector = isCustom ? customSectorInput.value.trim() : (addSectorSelect ? addSectorSelect.value : '');
   if (isCustom && !sector) {
     addStatus.textContent = 'Please enter a sector name.';
     addStatus.className = 'status err';
@@ -188,7 +218,7 @@ async function addStock() {
     if (!res.ok) throw new Error(data.error || 'Could not add that stock.');
 
     addSymbolInput.value = '';
-    customSectorInput.value = '';
+    if (customSectorInput) customSectorInput.value = '';
     addStatus.textContent = '';
     loadStocks();
   } catch (err) {

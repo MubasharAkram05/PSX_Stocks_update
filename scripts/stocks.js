@@ -1,12 +1,18 @@
 // scripts/stocks.js
-// Fetches every added stock (already in display order — see
-// lib/stock-order.js — via api/stocks.js), groups them into labeled
-// sector rows, and handles the Add Stock form. Save All re-fetches and
-// saves today's low/high for every symbol ever saved, same as the
-// automatic daily cron (api/cron-daily-save.js) — just triggered on
-// demand instead of waiting for it. Edit mode reveals per-stock ↑/↓
-// (reorder within its sector) and ✕ (remove), plus ↑/↓ on each sector
-// heading (reorder the whole group) — api/manage-stocks.js.
+// Shared by stocks.html and short-term.html — which list a page shows
+// is set via `window.STOCK_LIST_TYPE` ('main' or 'short-term') in an
+// inline <script> before this file loads. Fetches every added stock
+// for that list (already in display order — see lib/stock-order.js —
+// via api/stocks.js), groups them into labeled sector rows, and
+// handles the Add Stock / Bulk Add forms. Save All re-fetches and
+// saves today's low/high for every symbol ever saved (shared price
+// history across both lists), same as the automatic daily cron
+// (api/cron-daily-save.js) — just triggered on demand instead of
+// waiting for it. Edit mode reveals per-stock ↑/↓ (reorder within its
+// sector) and ✕ (remove), plus ↑/↓ on each sector heading (reorder
+// the whole group) — api/manage-stocks.js.
+
+const LIST_TYPE = window.STOCK_LIST_TYPE === 'short-term' ? 'short-term' : 'main';
 
 const container = document.getElementById('sectorGroups');
 const addSymbolInput = document.getElementById('addSymbol');
@@ -139,7 +145,7 @@ function renderGroups(stocks, sectorOrder) {
 
 async function loadStocks() {
   try {
-    const res = await fetch('/api/stocks');
+    const res = await fetch(`/api/stocks?list=${LIST_TYPE}`);
     const data = await res.json();
     lastStocks = data.stocks || [];
     lastSectorOrder = data.sectorOrder || [];
@@ -176,7 +182,7 @@ async function addStock() {
     const res = await fetch('/api/manage-stocks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ symbol, sector }),
+      body: JSON.stringify({ symbol, sector, list: LIST_TYPE }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Could not add that stock.');
@@ -216,7 +222,7 @@ async function bulkAddStocks() {
     const res = await fetch('/api/manage-stocks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'bulk-add', symbols }),
+      body: JSON.stringify({ action: 'bulk-add', symbols, list: LIST_TYPE }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Could not add those stocks.');
@@ -240,7 +246,7 @@ async function removeStock(symbol) {
     const res = await fetch('/api/manage-stocks', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ symbol }),
+      body: JSON.stringify({ symbol, list: LIST_TYPE }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Could not remove that stock.');
@@ -255,7 +261,7 @@ async function moveStock(symbol, direction) {
     const res = await fetch('/api/manage-stocks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'move-stock', symbol, direction }),
+      body: JSON.stringify({ action: 'move-stock', symbol, direction, list: LIST_TYPE }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Could not reorder that stock.');
@@ -270,7 +276,7 @@ async function moveSector(sector, direction) {
     const res = await fetch('/api/manage-stocks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'move-sector', sector, direction }),
+      body: JSON.stringify({ action: 'move-sector', sector, direction, list: LIST_TYPE }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Could not reorder that sector.');

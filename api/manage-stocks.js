@@ -1,12 +1,14 @@
 // api/manage-stocks.js
 // Called by the frontend at:
-//   POST   /api/manage-stocks  { symbol, sector }                    -> add a stock
-//   POST   /api/manage-stocks  { action: 'bulk-add', symbols: [...] } -> add many at once
-//   POST   /api/manage-stocks  { action: 'move-stock', symbol, direction }   -> reorder within its sector
-//   POST   /api/manage-stocks  { action: 'move-sector', sector, direction } -> reorder a sector group
-//   DELETE /api/manage-stocks  { symbol }                             -> remove a stock
-// Open to anyone — no login required. Only affects which stocks show
-// on the Stocks page, their sector, and display order; doesn't touch
+//   POST   /api/manage-stocks  { symbol, sector, list }                     -> add a stock
+//   POST   /api/manage-stocks  { action: 'bulk-add', symbols: [...], list } -> add many at once
+//   POST   /api/manage-stocks  { action: 'move-stock', symbol, direction, list }   -> reorder within its sector
+//   POST   /api/manage-stocks  { action: 'move-sector', sector, direction, list } -> reorder a sector group
+//   DELETE /api/manage-stocks  { symbol, list }                             -> remove a stock
+// `list` is 'main' (stocks.html, the default) or 'short-term'
+// (short-term.html) — the same symbol can be tracked independently on
+// both. Open to anyone — no login required. Only affects which stocks
+// show on a page, their sector, and display order; doesn't touch
 // saved price history.
 
 const { pool, ensureSchema } = require('../lib/db');
@@ -31,7 +33,7 @@ function sanitizeCustomSector(raw) {
   return cleaned || 'other';
 }
 
-async function bulkAdd(res, symbols) {
+async function bulkAdd(res, symbols, listType) {
   if (!Array.isArray(symbols) || symbols.length === 0) {
     return res.status(400).json({ error: 'Provide at least one symbol.' });
   }
@@ -44,10 +46,10 @@ async function bulkAdd(res, symbols) {
     unique.map(async (sym) => {
       const sector = SECTOR_META[sym] || 'other';
       const result = await pool.query(
-        `INSERT INTO stock_sectors (symbol, sector) VALUES ($1, $2)
-         ON CONFLICT (symbol) DO NOTHING
+        `INSERT INTO stock_sectors (symbol, sector, list_type) VALUES ($1, $2, $3)
+         ON CONFLICT (symbol, list_type) DO NOTHING
          RETURNING symbol`,
-        [sym, sector]
+        [sym, sector, listType]
       );
       return { symbol: sym, added: result.rows.length > 0 };
     })
@@ -61,12 +63,12 @@ async function bulkAdd(res, symbols) {
   });
 }
 
-async function moveStock(res, symbol, direction) {
+async function moveStock(res, symbol, direction, listType) {
   if (direction !== 'up' && direction !== 'down') {
     return res.status(400).json({ error: 'Direction must be "up" or "down".' });
   }
   const sym = symbol.trim().toUpperCase();
-  const { rows } = await getOrderedStocks();
+  const { rows } = await getOrderedStocks(listType);
 
   const target = rows.find((r) => r.symbol === sym);
   if (!target) {
@@ -82,16 +84,18 @@ async function moveStock(res, symbol, direction) {
   const reordered = [...sectorRows];
   [reordered[idx], reordered[swapIdx]] = [reordered[swapIdx], reordered[idx]];
   await Promise.all(
-    reordered.map((r, i) => pool.query(`UPDATE stock_sectors SET sort_order = $1 WHERE symbol = $2`, [i, r.symbol]))
+    reordered.map((r, i) =>
+      pool.query(`UPDATE stock_sectors SET sort_order = $1 WHERE symbol = $2 AND list_type = $3`, [i, r.symbol, listType])
+    )
   );
   res.status(200).json({ success: true });
 }
 
-async function moveSector(res, sector, direction) {
+async function moveSector(res, sector, direction, listType) {
   if (direction !== 'up' && direction !== 'down') {
     return res.status(400).json({ error: 'Direction must be "up" or "down".' });
   }
-  const { sectorOrder } = await getOrderedStocks();
+  const { sectorOrder } = await getOrderedStocks(listType);
   const idx = sectorOrder.indexOf(sector);
   if (idx === -1) {
     return res.status(404).json({ error: 'That sector is not currently shown.' });
@@ -106,9 +110,9 @@ async function moveSector(res, sector, direction) {
   await Promise.all(
     reordered.map((s, i) =>
       pool.query(
-        `INSERT INTO sector_order (sector, sort_order) VALUES ($1, $2)
-         ON CONFLICT (sector) DO UPDATE SET sort_order = $2, updated_at = NOW()`,
-        [s, i]
+        `INSERT INTO sector_order (sector, sort_order, list_type) VALUES ($1, $2, $3)
+         ON CONFLICT (sector, list_type) DO UPDATE SET sort_order = $2, updated_at = NOW()`,
+        [s, i, listType]
       )
     )
   );
@@ -120,18 +124,19 @@ module.exports = async (req, res) => {
     await ensureSchema();
 
     if (req.method === 'POST') {
-      const { action, symbol, sector, direction, symbols } = req.body || {};
+      const { action, symbol, sector, direction, symbols, list } = req.body || {};
+      const listType = list === 'short-term' ? 'short-term' : 'main';
 
       if (action === 'bulk-add') {
-        return bulkAdd(res, symbols);
+        return bulkAdd(res, symbols, listType);
       }
       if (action === 'move-stock') {
         if (!symbol || !symbol.trim()) return res.status(400).json({ error: 'Symbol is required.' });
-        return moveStock(res, symbol, direction);
+        return moveStock(res, symbol, direction, listType);
       }
       if (action === 'move-sector') {
         if (!sector) return res.status(400).json({ error: 'Sector is required.' });
-        return moveSector(res, sector, direction);
+        return moveSector(res, sector, direction, listType);
       }
 
       // No action (or unrecognized) falls through to the original
@@ -143,19 +148,20 @@ module.exports = async (req, res) => {
       const sec = PRESET_SECTORS.includes(sector) ? sector : sanitizeCustomSector(sector);
 
       await pool.query(
-        `INSERT INTO stock_sectors (symbol, sector) VALUES ($1, $2)
-         ON CONFLICT (symbol) DO UPDATE SET sector = EXCLUDED.sector`,
-        [sym, sec]
+        `INSERT INTO stock_sectors (symbol, sector, list_type) VALUES ($1, $2, $3)
+         ON CONFLICT (symbol, list_type) DO UPDATE SET sector = EXCLUDED.sector`,
+        [sym, sec, listType]
       );
       return res.status(200).json({ success: true });
     }
 
     if (req.method === 'DELETE') {
-      const { symbol } = req.body || {};
+      const { symbol, list } = req.body || {};
       if (!symbol) {
         return res.status(400).json({ error: 'Symbol is required.' });
       }
-      await pool.query(`DELETE FROM stock_sectors WHERE symbol = $1`, [symbol.trim().toUpperCase()]);
+      const listType = list === 'short-term' ? 'short-term' : 'main';
+      await pool.query(`DELETE FROM stock_sectors WHERE symbol = $1 AND list_type = $2`, [symbol.trim().toUpperCase(), listType]);
       return res.status(200).json({ success: true });
     }
 

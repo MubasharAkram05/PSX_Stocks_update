@@ -197,6 +197,8 @@ addSymbolInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addSt
 
 bulkAddToggleBtn.addEventListener('click', () => {
   bulkAddPanel.hidden = !bulkAddPanel.hidden;
+  bulkAddToggleBtn.classList.toggle('active', !bulkAddPanel.hidden);
+  bulkAddToggleBtn.textContent = bulkAddPanel.hidden ? 'Bulk Add…' : 'Close Bulk Add';
 });
 
 async function bulkAddStocks() {

@@ -67,7 +67,7 @@ module.exports = async (req, res) => {
 
     const sector = SECTOR_META[result.symbol] || 'other';
     await pool.query(
-      `INSERT INTO stock_sectors (symbol, sector) VALUES ($1, $2) ON CONFLICT (symbol) DO NOTHING`,
+      `INSERT INTO stock_sectors (symbol, sector) VALUES ($1, $2) ON CONFLICT (symbol, list_type) DO NOTHING`,
       [result.symbol, sector]
     );
 

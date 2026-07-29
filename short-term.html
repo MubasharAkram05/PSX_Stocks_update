@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Stocks — PSX Tools</title>
+<title>Short Term Stocks — PSX Tools</title>
 <link rel="stylesheet" href="/styles/nav.css" />
 <link rel="stylesheet" href="/styles/stocks.css" />
 </head>
@@ -13,16 +13,16 @@
     <a href="/" class="topnav-brand">PSX Tools</a>
     <div class="topnav-links">
       <a href="/">Home</a>
-      <a href="/stocks.html" class="active">Stocks</a>
-      <a href="/short-term.html">Short Term</a>
+      <a href="/stocks.html">Stocks</a>
+      <a href="/short-term.html" class="active">Short Term</a>
     </div>
   </div>
   <div class="topnav-index" id="topnavIndex"></div>
 </nav>
 
 <div class="page">
-  <h1>Stocks by Sector</h1>
-  <p class="sub">Add stocks, assign a sector, and remove any you no longer want tracked here. Click a stock to jump to the tracker with it pre-filled.</p>
+  <h1>Short Term Stocks</h1>
+  <p class="sub">A separate watchlist for short-term picks, kept apart from the main Stocks page. Add stocks, assign a sector, and remove any you no longer want tracked here. Click a stock to jump to the tracker with it pre-filled.</p>
 
   <div class="add-form">
     <input id="addSymbol" placeholder="e.g. ENGRO" autocomplete="off" />
@@ -64,6 +64,7 @@
   </div>
 </div>
 
+<script>window.STOCK_LIST_TYPE = 'short-term';</script>
 <script src="/scripts/nav.js"></script>
 <script src="/scripts/sparkline.js"></script>
 <script src="/scripts/stocks.js"></script>

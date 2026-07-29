@@ -44,6 +44,14 @@
   </div>
   <div id="addStatus" class="status"></div>
 
+  <button id="bulkAddToggleBtn" class="bulk-add-toggle">Bulk Add…</button>
+  <div id="bulkAddPanel" class="bulk-add-panel" hidden>
+    <p class="sub" style="margin-bottom:8px;">One symbol per line (or separated by commas/spaces). Sector is guessed automatically for known symbols, otherwise added as "Other" — move it later with Edit.</p>
+    <textarea id="bulkAddInput" placeholder="ENGRO&#10;MARI&#10;PSO"></textarea>
+    <button id="bulkAddBtn" class="save-all-btn">Add All</button>
+    <div id="bulkAddStatus" class="status"></div>
+  </div>
+
   <div class="page-actions">
     <button id="saveAllBtn" class="save-all-btn">Save All</button>
     <button id="editBtn" class="edit-btn">Edit</button>

@@ -17,6 +17,11 @@ const addStatus = document.getElementById('addStatus');
 const saveAllBtn = document.getElementById('saveAllBtn');
 const saveAllStatus = document.getElementById('saveAllStatus');
 const editBtn = document.getElementById('editBtn');
+const bulkAddToggleBtn = document.getElementById('bulkAddToggleBtn');
+const bulkAddPanel = document.getElementById('bulkAddPanel');
+const bulkAddInput = document.getElementById('bulkAddInput');
+const bulkAddBtn = document.getElementById('bulkAddBtn');
+const bulkAddStatus = document.getElementById('bulkAddStatus');
 
 let editMode = false;
 let lastStocks = [];
@@ -189,6 +194,43 @@ async function addStock() {
 }
 addStockBtn.addEventListener('click', addStock);
 addSymbolInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addStock(); });
+
+bulkAddToggleBtn.addEventListener('click', () => {
+  bulkAddPanel.hidden = !bulkAddPanel.hidden;
+});
+
+async function bulkAddStocks() {
+  const symbols = bulkAddInput.value
+    .split(/[\s,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (symbols.length === 0) return;
+
+  bulkAddBtn.disabled = true;
+  bulkAddStatus.textContent = 'Adding...';
+  bulkAddStatus.className = 'status';
+
+  try {
+    const res = await fetch('/api/manage-stocks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'bulk-add', symbols }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not add those stocks.');
+
+    bulkAddStatus.textContent = `Added ${data.added} new stock(s); ${data.alreadyTracked} were already tracked.`;
+    bulkAddStatus.className = 'status ok';
+    bulkAddInput.value = '';
+    loadStocks();
+  } catch (err) {
+    bulkAddStatus.textContent = err.message;
+    bulkAddStatus.className = 'status err';
+  } finally {
+    bulkAddBtn.disabled = false;
+  }
+}
+bulkAddBtn.addEventListener('click', bulkAddStocks);
 
 async function removeStock(symbol) {
   if (!confirm(`Remove ${symbol} from this list?`)) return;

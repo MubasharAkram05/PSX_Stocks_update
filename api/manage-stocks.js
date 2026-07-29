@@ -1,6 +1,7 @@
 // api/manage-stocks.js
 // Called by the frontend at:
 //   POST   /api/manage-stocks  { symbol, sector }                    -> add a stock
+//   POST   /api/manage-stocks  { action: 'bulk-add', symbols: [...] } -> add many at once
 //   POST   /api/manage-stocks  { action: 'move-stock', symbol, direction }   -> reorder within its sector
 //   POST   /api/manage-stocks  { action: 'move-sector', sector, direction } -> reorder a sector group
 //   DELETE /api/manage-stocks  { symbol }                             -> remove a stock
@@ -10,6 +11,7 @@
 
 const { pool, ensureSchema } = require('../lib/db');
 const { getOrderedStocks } = require('../lib/stock-order');
+const SECTOR_META = require('../lib/sector-meta');
 
 // Sectors offered as dropdown presets — kept as-is (they have curated
 // display labels on the frontend). Anything else is a custom,
@@ -27,6 +29,36 @@ function sanitizeCustomSector(raw) {
     .replace(/\s+/g, ' ')
     .slice(0, 30);
   return cleaned || 'other';
+}
+
+async function bulkAdd(res, symbols) {
+  if (!Array.isArray(symbols) || symbols.length === 0) {
+    return res.status(400).json({ error: 'Provide at least one symbol.' });
+  }
+  const unique = [...new Set(symbols.map((s) => String(s).trim().toUpperCase()).filter(Boolean))];
+  if (unique.length === 0) {
+    return res.status(400).json({ error: 'Provide at least one symbol.' });
+  }
+
+  const results = await Promise.all(
+    unique.map(async (sym) => {
+      const sector = SECTOR_META[sym] || 'other';
+      const result = await pool.query(
+        `INSERT INTO stock_sectors (symbol, sector) VALUES ($1, $2)
+         ON CONFLICT (symbol) DO NOTHING
+         RETURNING symbol`,
+        [sym, sector]
+      );
+      return { symbol: sym, added: result.rows.length > 0 };
+    })
+  );
+
+  res.status(200).json({
+    success: true,
+    added: results.filter((r) => r.added).length,
+    alreadyTracked: results.filter((r) => !r.added).length,
+    total: unique.length,
+  });
 }
 
 async function moveStock(res, symbol, direction) {
@@ -88,8 +120,11 @@ module.exports = async (req, res) => {
     await ensureSchema();
 
     if (req.method === 'POST') {
-      const { action, symbol, sector, direction } = req.body || {};
+      const { action, symbol, sector, direction, symbols } = req.body || {};
 
+      if (action === 'bulk-add') {
+        return bulkAdd(res, symbols);
+      }
       if (action === 'move-stock') {
         if (!symbol || !symbol.trim()) return res.status(400).json({ error: 'Symbol is required.' });
         return moveStock(res, symbol, direction);

@@ -44,7 +44,10 @@ async function bulkAdd(res, symbols, listType) {
 
   const results = await Promise.all(
     unique.map(async (sym) => {
-      const sector = SECTOR_META[sym] || 'other';
+      // The Short Term list has no sectors — everything added there
+      // goes in one "short-term" bucket instead of being spread across
+      // guessed sectors like the main Stocks page.
+      const sector = listType === 'short-term' ? 'short-term' : (SECTOR_META[sym] || 'other');
       const result = await pool.query(
         `INSERT INTO stock_sectors (symbol, sector, list_type) VALUES ($1, $2, $3)
          ON CONFLICT (symbol, list_type) DO NOTHING
@@ -145,7 +148,9 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Symbol is required.' });
       }
       const sym = symbol.trim().toUpperCase();
-      const sec = PRESET_SECTORS.includes(sector) ? sector : sanitizeCustomSector(sector);
+      const sec = listType === 'short-term'
+        ? 'short-term'
+        : (PRESET_SECTORS.includes(sector) ? sector : sanitizeCustomSector(sector));
 
       await pool.query(
         `INSERT INTO stock_sectors (symbol, sector, list_type) VALUES ($1, $2, $3)

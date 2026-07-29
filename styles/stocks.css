@@ -116,6 +116,34 @@ p.sub { color: #94a3b8; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
   margin-bottom: 10px;
 }
 
+.search-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.search-bar input {
+  flex: 1;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+.search-btn {
+  flex-shrink: 0;
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.search-btn:hover { border-color: #4ade80; }
+
 .page-actions { display: flex; gap: 10px; margin-bottom: 8px; }
 .save-all-btn {
   background: #22c55e;

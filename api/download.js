@@ -2,12 +2,13 @@
 // Called from the page via GET /api/download?format=excel or ?format=pdf
 // Optional date range filter: &from=YYYY-MM-DD&to=YYYY-MM-DD
 // Reads saved rows from the database (filtered by date range if given)
-// and streams back a file, arranged to match the Stocks page's
-// current order — same sector grouping and stock order as
-// lib/stock-order.js computes for stocks.html — with a Category
-// column showing each stock's sector. A symbol no longer tracked on
-// the Stocks page (but still with saved history) is grouped at the
-// end, alphabetically, with a blank category.
+// and streams back a file — newest date first, with rows on the same
+// date arranged in the Stocks page's current order (same sector
+// grouping and stock order as lib/stock-order.js computes for
+// stocks.html) — and a Category column showing each stock's sector. A
+// symbol no longer tracked on the Stocks page (but still with saved
+// history) sorts after all tracked ones on the same date,
+// alphabetically, with a blank category.
 
 const { pool, ensureSchema } = require('../lib/db');
 const ExcelJS = require('exceljs');
@@ -20,10 +21,11 @@ const { labelFor } = require('../lib/sector-labels');
 // no "T" to split on and instead prints the full verbose form
 // ("Mon Jul 27 2026 00:00:00 GMT+0000 (Coordinated Universal Time)").
 // Format explicitly instead, whether the driver hands back a Date or
-// an already-formatted string.
+// an already-formatted string. Displayed as DD-MM-YYYY.
 function formatDate(value) {
-  if (value instanceof Date) return value.toISOString().split('T')[0];
-  return String(value).split('T')[0];
+  const isoDate = value instanceof Date ? value.toISOString().split('T')[0] : String(value).split('T')[0];
+  const [year, month, day] = isoDate.split('-');
+  return `${day}-${month}-${year}`;
 }
 
 module.exports = async (req, res) => {
@@ -77,6 +79,12 @@ module.exports = async (req, res) => {
   };
 
   rows.sort((a, b) => {
+    // Newest date first, then the Stocks page's order as a tie-breaker
+    // within the same date — so the report reads as a daily log, not
+    // one long block per stock with old dates buried far down it.
+    const dateDiff = new Date(b.date) - new Date(a.date);
+    if (dateDiff !== 0) return dateDiff;
+
     // Compare ranks directly rather than subtracting first — both can
     // be Infinity (two symbols untracked on the Stocks page), and
     // Infinity - Infinity is NaN, which would silently break the
@@ -84,8 +92,7 @@ module.exports = async (req, res) => {
     const ra = rankOf(a.symbol);
     const rb = rankOf(b.symbol);
     if (ra !== rb) return ra - rb;
-    if (a.symbol !== b.symbol) return a.symbol.localeCompare(b.symbol);
-    return new Date(b.date) - new Date(a.date); // newest first within a symbol
+    return a.symbol.localeCompare(b.symbol);
   });
 
   const rangeLabel = from || to ? `${from || 'start'}_to_${to || 'now'}` : 'all';
